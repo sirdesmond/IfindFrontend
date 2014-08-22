@@ -1,4 +1,4 @@
-from flask import g, jsonify,request
+from flask import g, jsonify,request,session
 from flask.ext.httpauth import HTTPBasicAuth
 from flask.ext.login import login_user, logout_user, login_required, \
 	current_user
@@ -19,13 +19,11 @@ import json
 from requests import put,get,post
 
 
+
 auth = HTTPBasicAuth()
 
 
 
-#arbitrary_auth_payload = {"auth_data": "foo", "other_auth_data": "bar"}
-#options = {"admin": True}
-#token = create_token("<YOUR_FIREBASE_SECRET>", arbitrary_auth_payload, options)
 
 @auth.verify_password
 def verify_password(email_or_token, password):
@@ -36,12 +34,15 @@ def verify_password(email_or_token, password):
 	    g.current_user = User.verify_auth_token(email_or_token)
 	    g.token_used = True
 	    return g.current_user is not None
+
 	user = User.objects.get(email=email_or_token)
+	print user
 
 	if not user:
 	    return False
 	g.current_user = user
 	g.token_used = False
+
 	return user.verify_password(password)
 
 
@@ -55,10 +56,19 @@ def auth_error():
 @cross_origin(origins='*',headers=['Authorization','Content-Type'])
 @auth.login_required
 def get_token():
+
 	if g.current_user.is_anonymous() or g.token_used:
 	    return jsonify(make_response(unauthorized('Invalid credentials')))
+
+	##return token.fb token and user object
+	payload = {"id": g.current_user._id}
+	token = create_token("FgUjXoxvFKgsUDdgfONGnOqP3dOi9ZZe3Kkb5bXK",payload)
+	user = {"name":g.current_user.username,"email":g.current_user.email,"id":g.current_user._id,
+			"role":g.current_user.role,"type":g.current_user._type}
+
+	
 	return jsonify({'token': g.current_user.generate_auth_token(
-	    expiration=3600), 'expiration': 3600,'username':g.current_user.username})
+	    expiration=3600), 'expiration': 3600,'user':user,'fbToken':token})
 
 
 

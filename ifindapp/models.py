@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from ifindapp import db,login_manager
+from app import db,login_manager
 from flask import current_app
 from flask.ext.login import UserMixin,AnonymousUserMixin
 from werkzeug.security import generate_password_hash,check_password_hash
@@ -10,8 +10,11 @@ import pdb
 ## mongodb://<dbuser>:<dbpassword>@ds053459.mongolab.com:53459/ifindcard
 
 class User(db.Document,UserMixin):
-	email = db.StringField(required=True,primary_key=True,unique=True)
+	_id=db.IntField(required=True,primary_key=True,unique=True)
+	email = db.StringField(required=True)
 	username = db.StringField(required=True,max_length=64)
+	role = db.StringField(required=True,max_length=64)
+	_type =db.IntField(required=True)
 	password_hash = db.StringField(required=True,max_length=128)
 	confirmed = db.BooleanField(default=False)
 
