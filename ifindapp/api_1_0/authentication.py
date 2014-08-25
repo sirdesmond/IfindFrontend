@@ -16,7 +16,7 @@ from firebase_token_generator import create_token
 import time
 import os
 import json
-from requests import put,get,post
+from requests import put, get, post
 from bson.objectid import ObjectId
 
 
@@ -68,8 +68,8 @@ def get_token():
 	
 
 	
-	return jsonify({'token': g.current_user.generate_auth_token(
-	    expiration=3600), 'expiration': 3600,'user':g.current_user.to_json(),'fbToken':token})
+	return jsonify({'token': unicode(g.current_user.generate_auth_token(
+	    expiration=3600)), 'expiration': 3600, 'user':g.current_user.to_json(),'fbToken':token})
 
 
 
@@ -108,10 +108,10 @@ def register():
 
 
 
-@api.route('/search/<searchterm>/<category>',methods=['GET','OPTIONS'])
-@cross_origin(origins='*',headers=['Authorization'])
+@api.route('/search/<searchterm>/<category>',methods=['GET', 'OPTIONS'])
+@cross_origin(origins='*', headers=['Authorization'])
 @auth.login_required
-def search(searchterm,category):
+def search(searchterm, category):
 	response={}
 	
 	##analyze searchterm
