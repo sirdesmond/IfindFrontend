@@ -10,8 +10,8 @@ import pdb
 ## mongodb://<dbuser>:<dbpassword>@ds053459.mongolab.com:53459/ifindcard
 
 class User(db.Document,UserMixin):
-	_id=db.IntField(required=True,primary_key=True,unique=True)
-	email = db.StringField(required=True)
+	userid=db.StringField()
+	email = db.StringField(required=True,unique=True)
 	username = db.StringField(required=True,max_length=64)
 	role = db.StringField(required=True,max_length=64)
 	_type =db.IntField(required=True)
@@ -32,7 +32,8 @@ class User(db.Document,UserMixin):
 	def generate_auth_token(self,expiration):
 		s = Serializer(current_app.config['SECRET_KEY'],\
 			expires_in=expiration)
-		return s.dumps({'id':self.id})
+		print self.id
+		return s.dumps({'id':str(self.id)})
 
 	@staticmethod
 	def verify_auth_token(token):
@@ -45,7 +46,7 @@ class User(db.Document,UserMixin):
 
 	def generate_confirmation_token(self, expiration=3600):
 	    s = Serializer(current_app.config['SECRET_KEY'], expiration)
-	    return s.dumps({'confirm': self.id})
+	    return s.dumps({'confirm': self._id})
 
 	def confirm(self, token):
 	    s = Serializer(current_app.config['SECRET_KEY'])
@@ -54,7 +55,7 @@ class User(db.Document,UserMixin):
 	        data = s.loads(token)
 	    except:
 	        return False
-	    if data.get('confirm') != self.id:
+	    if data.get('confirm') != self._id:
 	        return False
 	    self.confirmed = True
 	    db.session.add(self)
@@ -67,7 +68,7 @@ class User(db.Document,UserMixin):
 
 	def generate_reset_token(self, expiration=3600):
 	    s = Serializer(current_app.config['SECRET_KEY'], expiration)
-	    return s.dumps({'reset': self.id})
+	    return s.dumps({'reset': self._id})
 
 	def reset_password(self, token, new_password):
 	    s = Serializer(current_app.config['SECRET_KEY'])
@@ -75,7 +76,7 @@ class User(db.Document,UserMixin):
 	        data = s.loads(token)
 	    except:
 	        return False
-	    if data.get('reset') != self.id:
+	    if data.get('reset') != self._id:
 	        return False
 	    self.password = new_password
 	    db.session.add(self)
@@ -83,7 +84,7 @@ class User(db.Document,UserMixin):
 
 	def generate_email_change_token(self, new_email, expiration=3600):
 	    s = Serializer(current_app.config['SECRET_KEY'], expiration)
-	    return s.dumps({'change_email': self.id, 'new_email': new_email})
+	    return s.dumps({'change_email': self.email, 'new_email': new_email})
 
 	def change_email(self, token):
 	    s = Serializer(current_app.config['SECRET_KEY'])
@@ -91,7 +92,7 @@ class User(db.Document,UserMixin):
 	        data = s.loads(token)
 	    except:
 	        return False
-	    if data.get('change_email') != self.id:
+	    if data.get('change_email') != self._id:
 	        return False
 	    new_email = data.get('new_email')
 	    if new_email is None:
@@ -104,6 +105,20 @@ class User(db.Document,UserMixin):
 	    db.session.add(self)
 	    return True
 
+	def to_json(self):
+		json_user={
+			'userid':self.userid,
+			'email':self.email,
+			'username':self.username,
+			'role':self.role,
+			'type':self._type,
+			'confirmed':self.confirmed
+		}
+
+		return json.dumps(json_user)
+
+	
+
 class AnonymousUser(AnonymousUserMixin):
     def can(self, permissions):
         return False
@@ -114,3 +129,13 @@ class AnonymousUser(AnonymousUserMixin):
 @login_manager.user_loader
 def load_user(user_id):
 	return User.query.get(int(user_id))
+
+class Object:
+    def to_JSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+
+class JSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, ObjectId):
+            return str(o)
+        return json.JSONEncoder.default(self, o)

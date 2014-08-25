@@ -17,7 +17,7 @@ import time
 import os
 import json
 from requests import put,get,post
-
+from bson.objectid import ObjectId
 
 
 auth = HTTPBasicAuth()
@@ -27,13 +27,15 @@ auth = HTTPBasicAuth()
 
 @auth.verify_password
 def verify_password(email_or_token, password):
+	print 'email_or_token :'+ email_or_token
+	print 'password:'+password
 	if email_or_token == '':
 	    g.current_user = AnonymousUser()
 	    return True
 	if password == '':
-	    g.current_user = User.verify_auth_token(email_or_token)
-	    g.token_used = True
-	    return g.current_user is not None
+		g.current_user = User.verify_auth_token(email_or_token)
+		g.token_used = True
+		return g.current_user is not None
 
 	user = User.objects.get(email=email_or_token)
 	print user
@@ -61,14 +63,13 @@ def get_token():
 	    return jsonify(make_response(unauthorized('Invalid credentials')))
 
 	##return token.fb token and user object
-	payload = {"id": g.current_user._id}
+	payload = {"id": g.current_user.userid}
 	token = create_token("FgUjXoxvFKgsUDdgfONGnOqP3dOi9ZZe3Kkb5bXK",payload)
-	user = {"name":g.current_user.username,"email":g.current_user.email,"id":g.current_user._id,
-			"role":g.current_user.role,"type":g.current_user._type}
+	
 
 	
 	return jsonify({'token': g.current_user.generate_auth_token(
-	    expiration=3600), 'expiration': 3600,'user':user,'fbToken':token})
+	    expiration=3600), 'expiration': 3600,'user':g.current_user.to_json(),'fbToken':token})
 
 
 
@@ -90,7 +91,8 @@ def register():
 
 	try:
 
-		### generate BUN ID here and add to json object
+		### generate new Ifind ID here and add to json object
+		
 		## make post request
 		r= post('http://wrkapi-naytion.rhcloud.com/v1/user/user002',data=json.dumps(data),headers={'Content-Type':'application/json'})
 		response["status"] = r.status_code
@@ -106,20 +108,26 @@ def register():
 
 
 
-@api.route('/search/:searchterm',methods=['GET'])
-@cross_origin(origins='*')
-def search():
+@api.route('/search/<searchterm>/<category>',methods=['GET','OPTIONS'])
+@cross_origin(origins='*',headers=['Authorization'])
+@auth.login_required
+def search(searchterm,category):
 	response={}
+	
+	##analyze searchterm
+	##if searchcategory is 0=BUN#,1=PHONE#,2=QRCODE
+	if category == '0':
+		user = User.objects.get(userid=searchterm)
+	elif category == '1':
+		user = User.objects.get(phone=searchterm)
+	elif category == '2':
+		user = User.objects.get(email=searchterm)
 
-	##retrieve contents from request
-	data = request.json
 	
-	##validate content - 
-	
+	response['user'] = user.to_json()
 
-	##query database for content
-	
-	##return to user
+			
+	return jsonify(response=response)
 
 @api.route('/activate', methods=['POST','OPTIONS'])
 @cross_origin(origins='*',headers=['Authorization','Content-Type'])
