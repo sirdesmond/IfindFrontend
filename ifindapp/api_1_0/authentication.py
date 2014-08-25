@@ -29,6 +29,7 @@ auth = HTTPBasicAuth()
 def verify_password(email_or_token, password):
 	print 'email_or_token :'+ email_or_token
 	print 'password:'+password
+	print request.headers['Token']
 	if email_or_token == '':
 	    g.current_user = AnonymousUser()
 	    return True
