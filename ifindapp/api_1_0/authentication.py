@@ -26,21 +26,22 @@ auth = HTTPBasicAuth()
 
 @auth.verify_password
 def verify_password(email_or_token, password):
-	print 'Real token '+ str(request.headers).split('Authorization: Basic ')[1].split('\r')[0]
-
+	
 	print 'email_or_token :'+ email_or_token
 	print 'username:'+request.authorization.username
 	try:
-		token = str(request.headers).split('Authorization: Basic ').split('\r')[0]
+		token = str(request.headers).split('Authorization: Basic ')[1].split('\r')[0]
+		print 'Real token '+ token
 		user = User.verify_auth_token(token)
 		if user is not None:
 			g.current_user = user
 			g.token_used = True
 			return g.current_user is not None
 
-	except Exception:
+	except Exception, e:
+		print e
 		pass
-		
+
 	if email_or_token == '':
 		g.current_user = AnonymousUser()
 		return True
