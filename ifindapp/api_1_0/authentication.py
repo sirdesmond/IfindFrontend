@@ -110,10 +110,10 @@ def register():
 
 @api.route('/search/<searchterm>/<category>',methods=['GET', 'OPTIONS'])
 @cross_origin(origins='*', headers=['Authorization'])
-@auth.login_required
+# @auth.login_required
 def search(searchterm, category):
 	response={}
-	
+	print 'This is the request header right now' + str(request.headers)
 	##analyze searchterm
 	##if searchcategory is 0=BUN#,1=PHONE#,2=QRCODE
 	if category == '0':
