@@ -120,7 +120,6 @@ def register():
 
 @api.route('/search/<searchterm>/<category>',methods=['GET', 'OPTIONS'])
 @cross_origin(origins='*', headers=['Authorization'])
-@auth.login_required
 def search(searchterm, category):
 	response = {}
 	##analyze searchterm
