@@ -1,4 +1,4 @@
-from flask import g, jsonify,request,session
+from flask import g, jsonify, request, session, reponse
 from flask.ext.httpauth import HTTPBasicAuth
 from flask.ext.login import login_user, logout_user, login_required, \
 	current_user
@@ -58,7 +58,7 @@ def auth_error():
 @cross_origin(origins='*',headers=['Authorization','Content-Type'])
 @auth.login_required
 def get_token():
-
+	
 	if g.current_user.is_anonymous() or g.token_used:
 	    return jsonify(make_response(unauthorized('Invalid credentials')))
 
