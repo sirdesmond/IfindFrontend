@@ -1,4 +1,4 @@
-from flask import g, jsonify, request, session, reponse
+from flask import g, jsonify, request, session, response
 from flask.ext.httpauth import HTTPBasicAuth
 from flask.ext.login import login_user, logout_user, login_required, \
 	current_user
@@ -58,7 +58,6 @@ def auth_error():
 @cross_origin(origins='*',headers=['Authorization','Content-Type'])
 @auth.login_required
 def get_token():
-
 	print 'This is the request header right now\n' + str(request.headers)
 	print 'This is the reponse header right now\n' + str(response)
 	if g.current_user.is_anonymous() or g.token_used:
@@ -115,7 +114,8 @@ def register():
 # @auth.login_required
 def search(searchterm, category):
 	
-	
+	print 'This is the request header right now\n' + str(request.headers)
+	print 'This is the reponse header right now\n' + str(response)
 
 	##analyze searchterm
 	##if searchcategory is 0=BUN#,1=PHONE#,2=QRCODE
