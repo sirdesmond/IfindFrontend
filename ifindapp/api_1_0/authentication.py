@@ -30,20 +30,26 @@ def verify_password(email_or_token, password):
 
 	print 'email_or_token :'+ email_or_token
 	print 'username:'+request.authorization.username
-	print str(request.headers)
+	try:
+		token = str(request.headers).split('Authorization: Basic ').split('\r')[0]
+		user = User.verify_auth_token(token)
+		if user is not None:
+			g.current_user = user
+			g.token_used = True
+			return g.current_user is not None
+
+	except Exception:
+		pass
+		
 	if email_or_token == '':
-	    g.current_user = AnonymousUser()
-	    return True
-	if password == '':
-		g.current_user = User.verify_auth_token(email_or_token)
-		g.token_used = True
-		return g.current_user is not None
+		g.current_user = AnonymousUser()
+		return True
 
 	user = User.objects.get(email=email_or_token)
 	print user
 
 	if not user:
-	    return False
+		return False
 	g.current_user = user
 	g.token_used = False
 
