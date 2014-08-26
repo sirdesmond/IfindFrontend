@@ -26,6 +26,7 @@ auth = HTTPBasicAuth()
 
 @auth.verify_password
 def verify_password(email_or_token, password):
+	print str(request.headers['Authentication'])
 	print 'email_or_token :'+ email_or_token
 	print 'password:'+password
 	# print request.headers['Token']
@@ -59,6 +60,7 @@ def auth_error():
 @auth.login_required
 def get_token():
 	print 'This is the request header right now\n' + str(request.headers)
+
 	if g.current_user.is_anonymous() or g.token_used:
 	    return jsonify(make_response(unauthorized('Invalid credentials')))
 
@@ -110,10 +112,10 @@ def register():
 
 @api.route('/search/<searchterm>/<category>',methods=['GET', 'OPTIONS'])
 @cross_origin(origins='*', headers=['Authorization'])
-# @auth.login_required
+@auth.login_required
 def search(searchterm, category):
 	
-	print 'This is the request header right now\n' + str(request.headers)
+	print 'This is the request header right now from seach: \n' + str(request.headers)
 
 	##analyze searchterm
 	##if searchcategory is 0=BUN#,1=PHONE#,2=QRCODE
