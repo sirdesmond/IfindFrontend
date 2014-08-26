@@ -5,7 +5,6 @@ from flask.ext.login import login_user, logout_user, login_required, \
 from ..models import User, AnonymousUser
 from . import api
 from .. import db
-from ..email import send_email
 from ..errors import unauthorized, forbidden
 from ..decorators import crossdomain
 from flask.ext.cors import cross_origin
