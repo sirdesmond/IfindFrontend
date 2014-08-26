@@ -122,9 +122,7 @@ def register():
 @cross_origin(origins='*', headers=['Authorization'])
 @auth.login_required
 def search(searchterm, category):
-	
-	print 'This is the request header right now from seach: \n' + str(request.headers)
-
+	response = {}
 	##analyze searchterm
 	##if searchcategory is 0=BUN#,1=PHONE#,2=QRCODE
 	if category == '0':
