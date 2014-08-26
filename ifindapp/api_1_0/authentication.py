@@ -29,7 +29,7 @@ def verify_password(email_or_token, password):
 	print 'Real token '+ str(request.headers).split('Authorization: Basic ')[1].split('\r')[0]
 
 	print 'email_or_token :'+ email_or_token
-	print 'username:'+request.authorizaion.username
+	print 'username:'+request.authorization.username
 	# print request.headers['Token']
 	if email_or_token == '':
 	    g.current_user = AnonymousUser()
