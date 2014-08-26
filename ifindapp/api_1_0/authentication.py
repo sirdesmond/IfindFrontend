@@ -59,7 +59,7 @@ def auth_error():
 @auth.login_required
 def get_token():
 	print 'This is the request header right now\n' + str(request.headers)
-	print 'This is the reponse header right now\n' + str(Response)
+	print 'This is the reponse header right now\n' + str(Response.headers)
 	if g.current_user.is_anonymous() or g.token_used:
 	    return jsonify(make_response(unauthorized('Invalid credentials')))
 
