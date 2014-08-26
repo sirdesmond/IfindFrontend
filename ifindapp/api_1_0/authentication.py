@@ -26,8 +26,8 @@ auth = HTTPBasicAuth()
 
 @auth.verify_password
 def verify_password(email_or_token, password):
-	print str(request.headers)
-	print type(request.headers)
+	print str(request.headers.Authorization)
+	print type(request.headers.Authorization)
 	print 'email_or_token :'+ email_or_token+password
 	print 'password:'+password
 	# print request.headers['Token']
