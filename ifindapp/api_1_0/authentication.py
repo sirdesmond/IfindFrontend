@@ -58,7 +58,7 @@ def auth_error():
 @cross_origin(origins='*',headers=['Authorization','Content-Type'])
 @auth.login_required
 def get_token():
-	
+
 	if g.current_user.is_anonymous() or g.token_used:
 	    return jsonify(make_response(unauthorized('Invalid credentials')))
 
@@ -112,7 +112,7 @@ def register():
 @cross_origin(origins='*', headers=['Authorization'])
 # @auth.login_required
 def search(searchterm, category):
-	response={}
+	
 	print 'This is the request header right now\n' + str(request.headers)
 	print 'This is the reponse header right now\n' + str(response)
 
