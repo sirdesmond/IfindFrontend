@@ -114,7 +114,7 @@ def register():
 def search(searchterm, category):
 	response={}
 	print 'This is the request header right now\n' + str(request.headers)
-	print 'This is the reponse header right now\n' + str(response.headers)
+	print 'This is the reponse header right now\n' + str(response)
 
 	##analyze searchterm
 	##if searchcategory is 0=BUN#,1=PHONE#,2=QRCODE
