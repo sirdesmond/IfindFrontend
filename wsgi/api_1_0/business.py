@@ -32,10 +32,33 @@ class Business(CORSObject):
             return make_error(str(e), 401)
 
     @validate_credentials(verify_token)
-    def get(self, typ=0, params='*' ):
+    def get(self):
         """ Used for seaching for Business dynamically.
         When the type is dynamically we will use specially field in the
         collection to find the Business that best matches the query.
+        Return info could include:
+            Business info
+            All Representives linked to Business
+            One particular Representive
+        Business Search TYPES:
+            0 - BUN
+            1 - PHONE
+            2 - QRCODE
+            3 - BUS NAME
+            4 - DYNAMIC
+
         """
-  
-        return make_ok(data={'params': request.args.get("params"), 'type': request.args.get("typ")})
+        q, typ = request.args.get("q"), request.args.get("typ")
+        response = {}
+        ##analyze searchterm
+        ##if searchcategory is 0=BUN#,1=PHONE#,2=QRCODE
+        if typ == '0':
+            user = User.objects.get(userid=q)
+        elif category == '1':
+            typ = User.objects.get(phone=q)
+        elif category == '2':
+            typ = User.objects.get(email=q)
+
+        response['user'] = user.to_json()
+
+        return make_ok(data=response)
