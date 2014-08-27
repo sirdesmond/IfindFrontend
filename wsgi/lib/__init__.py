@@ -101,6 +101,8 @@ def http_method_dispatcher(cls):
             f = getattr(instance, method_name)
         except AttributeError:
             abort(405)
+        print 'Args'+str(args)
+        print 'kwargs'+str(kwargs)
         return f(*args, **kwargs)
 
     # Name the method_dispatcher function after the class so that it is unique.
