@@ -2,6 +2,8 @@ from flask import Blueprint, request
 from celery import chain
 from models import (User, user_full, user_partial, user_full_with_hash)
 from tasks.tasks import (register_users, send_confirm_email)
+from flask.ext.cors import cross_origin
+import json
 from lib import (check, http_method_dispatcher,
                  if_content_exists_then_is_json, validate_credentials,
                  CORSObject, make_ok, make_error, validate_json)
@@ -21,7 +23,7 @@ class Users(CORSObject):
         data = request.json
         user = User(json_data=data).to_json(with_hash=False)
         new_user = str(json.loads(user))
-        print 'NEW USER: 'new_user
+        print 'NEW USER: ' + new_user
 
         chain(register_users.s(new_user), send_confirm_email.s()).apply_async()
         response['message'] = 'Registration submitted successfully'
