@@ -39,4 +39,4 @@ class Business(CORSObject):
         """
 
         
-        return make_ok(data={'params':params, 'type': typ})
+        return make_ok(data={'params':request.args.get("params"), 'type': request.args.get("typ")})
