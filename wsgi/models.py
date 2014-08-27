@@ -13,18 +13,15 @@ from firebase_token_generator import create_token
 
 # mongodb://<dbuser>:<dbpassword>@ds053459.mongolab.com:53459/ifindcard
 user_full_with_hash = Schema({
-    'userid': basestring,
     'email': validate_email,
-    'u_name': basestring,
     'f_name': basestring,
     'l_name': basestring,
     'password': basestring,
     'role': basestring,
-    '_type': int
+    'p_number': basestring
 }, error='Invalid specification for a new user')
 
 user_full = Schema({
-    'userid': basestring,
     'email': validate_email,
     'u_name': basestring,
     'f_name': basestring,
@@ -43,11 +40,9 @@ user_partial = Schema({
 class User(db.Document, UserMixin):
     userid = db.StringField()
     email = db.StringField(required=True, unique=True)
-    u_name = db.StringField(required=True, max_length=64)
     f_name = db.StringField(required=True, max_length=64)
     l_name = db.StringField(required=True, max_length=64)
     role = db.StringField(required=True, max_length=64)
-    _type = db.IntField(required=True)
     password_hash = db.StringField(required=True, max_length=128)
     confirmed = db.BooleanField(default=False)
 
@@ -58,14 +53,11 @@ class User(db.Document, UserMixin):
 
         if json_data:
             try:
-                self.email = json_data.email
-                self.userid = json_data.userid
-                self.role = json_data.role
-                self._type = json_data._type
-                self.password = json_data.password
-                self.f_name = json_data.f_name
-                self.l_name = json_data.l_name
-                self.u_name = json_data.u_name
+                self.email = json_data.get('email')
+                self.role = json_data.get('role')
+                self.password = json_data.get('password')
+                self.f_name = json_data.get('f_name')
+                self.l_name = json_data.get('l_name')
             except Exception, e:
                 raise e
 
@@ -161,18 +153,16 @@ class User(db.Document, UserMixin):
         db.session.add(self)
         return True
 
-    def to_json(self, restricted=True):
+    def to_json(self, with_hash=False):
         json_user = {
             'userid': self.userid,
             'email': self.email,
-            'u_name': self.u_name,
             'f_name': self.f_name,
             'l_name': self.l_name,
             'role': self.role,
-            '_type': self._type,
             'confirmed': self.confirmed
         }
-        if not restricted:
+        if with_hash:
             json_user['pswrd_hash'] = self.password_hash
 
         return json.dumps(json_user)

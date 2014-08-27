@@ -101,7 +101,7 @@ def http_method_dispatcher(cls):
             f = getattr(instance, method_name)
         except AttributeError:
             abort(405)
-        print 'Args'+str(request.args)
+        print 'Args' + str(request.args)
         return f(*args, **kwargs)
 
     # Name the method_dispatcher function after the class so that it is unique.
@@ -164,16 +164,16 @@ def validate_json(validate_function, default=None):
     """
     @decorator
     def validate_with_validate_function(f, *args, **kwargs):
-        print 'I am validating the json data'
-        input_json = {str(k): str(v) for k, v in request.json.iteritems()}
-        print str(input_json)
+        data = request.json['data']
+
+        input_json = {str(k): str(v) for k, v in data.iteritems()}
 
         if input_json is None and callable(default):
             input_json = default()
         try:
             validate_function(input_json)
         except Exception, e:
-            print 'BAD BOY!!!'
+            print 'BAD BOY!!!' + str(e)
             return make_error(str(e), 400)
         return f(*args, **kwargs)
     return validate_with_validate_function

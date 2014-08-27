@@ -17,15 +17,16 @@ blueprint = Blueprint(__name__, __name__)
 @http_method_dispatcher
 class Users(CORSObject):
 
-    @validate_json(user_full.validate)
+    @validate_json(user_full_with_hash.validate)
     def post(self):
-        reponse = {}
-        data = request.json
-        user = User(json_data=data).to_json(with_hash=False)
-        new_user = str(json.loads(user))
-        print 'NEW USER: ' + new_user
+        response = {}
+        data = request.json['data']
 
-        chain(register_users.s(new_user), send_confirm_email.s()).apply_async()
+        input_json = {str(k): str(v) for k, v in data.iteritems()}
+        user = User(json_data=input_json).to_json(with_hash=True)
+        new_user = str(input_json)
+
+        result = chain(register_users.s(new_user), send_confirm_email.s()).apply_async()
         response['message'] = 'Registration submitted successfully'
 
         return make_ok(reponse=response)
