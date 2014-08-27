@@ -32,11 +32,11 @@ class Business(CORSObject):
             return make_error(str(e), 401)
 
     @validate_credentials(verify_token)
-    def get(self, _typ=0, params='*' ):
+    def get(self, typ=0, params='*' ):
         """ Used for seaching for Business dynamically.
         When the type is dynamically we will use specially field in the
         collection to find the Business that best matches the query.
         """
 
         
-        return make_ok(data={'params':params, 'type': _type})
+        return make_ok(data={'params':params, 'type': typ})
