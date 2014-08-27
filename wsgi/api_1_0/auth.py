@@ -2,7 +2,7 @@ from flask import (Blueprint, request, g, jsonify)
 from models import User
 from lib import (check, http_method_dispatcher,
                  if_content_exists_then_is_json, validate_credentials,
-                 CORSObject, make_ok)
+                 CORSObject, make_ok, make_error)
 from flask.ext.cors import cross_origin
 blueprint = Blueprint(__name__, __name__)
 
@@ -17,7 +17,7 @@ class Auth(CORSObject):
         uname = auth.username
         c_password = auth.password
         user = User.objects.get(email=uname)
-        
+
         if not user:
             added_headers = None
             return make_error('Invalid username or password', 401,
