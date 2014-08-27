@@ -44,8 +44,3 @@ class Auth(CORSObject):
         }
         print type(g.current_user)
         return make_ok(tokens=response, user=g.current_user.to_json())
-
-    # @cross_origin(origins='*', headers=['Authorization', 'Content-Type'])
-    def options(self):
-        print 'I GOT CALLED'
-        pass
