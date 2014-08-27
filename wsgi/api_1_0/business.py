@@ -54,10 +54,10 @@ class Business(CORSObject):
         ##if searchcategory is 0=BUN#,1=PHONE#,2=QRCODE
         if typ == '0':
             user = User.objects.get(userid=q)
-        elif category == '1':
-            typ = User.objects.get(phone=q)
-        elif category == '2':
-            typ = User.objects.get(email=q)
+        elif typ == '1':
+            user = User.objects.get(phone=q)
+        elif typ == '2':
+            user = User.objects.get(email=q)
 
         response['user'] = user.to_json()
 

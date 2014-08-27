@@ -1,9 +1,10 @@
 from flask import Blueprint, request
-from schema import (Schema, Optional)
 from celery import chain
-from models import (User, user_full, user_partial)
-from tasks import (tasks)
-from lib import *
+from models import (User, user_full, user_partial, user_full_with_hash)
+from tasks.tasks import (register_users, send_confirm_email)
+from lib import (check, http_method_dispatcher,
+                 if_content_exists_then_is_json, validate_credentials,
+                 CORSObject, make_ok, make_error, validate_json)
 
 blueprint = Blueprint(__name__, __name__)
 
@@ -14,12 +15,23 @@ blueprint = Blueprint(__name__, __name__)
 @http_method_dispatcher
 class Users(CORSObject):
 
+    @validate_json(user_full.validate)
     def post(self):
-        pass
+        reponse = {}
+        data = request.json
+        user = User(json_data=data).to_json(with_hash=False)
+        new_user = str(json.loads(user))
+        print 'NEW USER: 'new_user
+
+        chain(register_users.s(new_user), send_confirm_email.s()).apply_async()
+        response['message'] = 'Registration submitted successfully'
+
+        return make_ok(reponse=response)
 
     def delete(self):
-        user_database.reset()
-        return make_ok
+        if False:
+            user_database.reset()
+            return make_ok(reponse=reponse)
 
 
 @blueprint.route('/<id>', methods=['GET', 'PATCH', 'PUT', 'DELETE'])
