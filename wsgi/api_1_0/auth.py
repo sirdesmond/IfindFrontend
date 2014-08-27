@@ -30,7 +30,6 @@ class Auth(CORSObject):
                           additional_headers=added_headers) if not user.verify_password(c_password) else None
 
     @validate_credentials(verify_password)
-    @cross_origin(origins='*', headers=['Authorization', 'Content-Type'])
     def post(self):
         print 'Request Header POST:AUTH \n' + str(request.headers)
 
