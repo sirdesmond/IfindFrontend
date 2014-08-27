@@ -8,6 +8,7 @@ blueprint = Blueprint(__name__, __name__)
 
 
 @blueprint.route('', methods=['POST', 'OPTIONS'])
+@cross_origin(origins='*', headers=['Authorization', 'Content-Type'])
 @check(if_content_exists_then_is_json)
 @http_method_dispatcher
 class Auth(CORSObject):
@@ -44,7 +45,7 @@ class Auth(CORSObject):
         print type(g.current_user)
         return make_ok(tokens=response, user=g.current_user.to_json())
 
-    @cross_origin(origins='*', headers=['Authorization', 'Content-Type'])
+    # @cross_origin(origins='*', headers=['Authorization', 'Content-Type'])
     def options(self):
         print 'I GOT CALLED'
         pass
