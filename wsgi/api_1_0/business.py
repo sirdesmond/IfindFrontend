@@ -37,6 +37,5 @@ class Business(CORSObject):
         When the type is dynamically we will use specially field in the
         collection to find the Business that best matches the query.
         """
-
-        
-        return make_ok(data={'params':request.args.get("params"), 'type': request.args.get("typ")})
+  
+        return make_ok(data={'params': request.args.get("params"), 'type': request.args.get("typ")})
