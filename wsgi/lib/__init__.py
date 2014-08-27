@@ -206,26 +206,9 @@ def validate_credentials(validate_function):
     return validate_with_validate_function
 
 
-def verify_token(*args, **kwargs):
-    try:
-        token = str(request.headers).split(
-            'Authorization: Basic ')[1].split('\r')[0]
-        print 'From verify token' + token
-        user = User.verify_auth_token(token)
-
-        if not user:
-            added_headers = None
-            return make_error('Invalid token', 401,
-                              additional_headers=added_headers)
-
-        g.current_user = user
-        return None
-
-    except Exception, e:
-        return make_error(str(e), 401)
-
 class CORSObject(object):
-    @cross_origin(origins='*',headers=['Content-Type'])
+
+    @cross_origin(origins='*', headers=['Content-Type'])
     def options(self):
         print 'OPTIONS IS RUNNING!!!'
         pass
