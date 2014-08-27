@@ -29,8 +29,8 @@ class Auth(CORSObject):
         return make_error('Invalid username or password', 401,
                           additional_headers=added_headers) if not user.verify_password(c_password) else None
 
-    @cross_origin(origins='*', headers=['Authorization', 'Content-Type'])
     @validate_credentials(verify_password)
+    @cross_origin(origins='*', headers=['Authorization', 'Content-Type'])
     def post(self):
         print 'Request Header POST:AUTH \n' + str(request.headers)
 
