@@ -13,6 +13,7 @@ blueprint = Blueprint(__name__, __name__)
 class Auth(CORSObject):
 
     def verify_password(self, *args, **kwargs):
+        print 'Request Header POST:AUTH \n' + str(request.headers)
         auth = request.authorization
         uname = auth.username
         c_password = auth.password
