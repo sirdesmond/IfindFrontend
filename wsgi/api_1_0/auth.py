@@ -43,6 +43,6 @@ class Auth(CORSObject):
         print type(g.current_user)
         return make_ok(tokens=response, user=g.current_user.to_json())
 
-    def options():
+    def options(self):
         print 'I GOT CALLED'
         pass
