@@ -17,14 +17,14 @@ class Auth(CORSObject):
         uname = auth.username
         c_password = auth.password
         user = User.objects.get(email=uname)
-
+        
         if not user:
             added_headers = None
             return make_error('Invalid username or password', 401,
                               additional_headers=added_headers)
 
         g.current_user = user
-
+        added_headers = None
         return make_error('Invalid username or password', 401,
                           additional_headers=added_headers) if not user.verify_password(c_password) else None
 
