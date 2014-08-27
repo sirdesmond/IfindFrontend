@@ -227,4 +227,5 @@ def verify_token(*args, **kwargs):
 class CORSObject(object):
     @cross_origin(origins='*',headers=['Content-Type'])
     def options(self):
+        print 'OPTIONS IS RUNNING!!!'
         pass
