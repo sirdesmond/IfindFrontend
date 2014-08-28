@@ -138,6 +138,36 @@ def search(searchterm, category):
 			
 	return jsonify(response=response)
 
+@api.route('/signs3/',methods=['GET', 'OPTIONS'])
+@cross_origin(origins='*')
+def sign_s3():
+	response={}
+	AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY_ID')
+	AWS_SECRET_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+	S3_BUCKET = os.environ.get('S3_BUCKET')
+
+	#object_name = request.args.get('s3_object_name')
+	#mime_type = request.args.get('s3_object_type')
+
+	expires = int(time.time()+60 * 3)
+	amz_headers = "x-amz-acl:public-read"
+
+	put_request = "PUT\n\n%d\n%s\n/%s" % (expires, amz_headers, S3_BUCKET)
+
+	signature = base64.encodestring(hmac.new(AWS_SECRET_KEY, put_request, sha1).digest())
+	signature = urllib.quote_plus(signature.strip())
+
+	url = 'https://%s.s3.amazonaws.com' % (S3_BUCKET)
+
+	response['url'] = url
+	response['aws_key']= AWS_ACCESS_KEY
+	response['expiration']= expires
+	response['signature']= signature
+	
+	return jsonify(response=response)
+
+
+
 @api.route('/activate', methods=['POST','OPTIONS'])
 @cross_origin(origins='*',headers=['Authorization','Content-Type'])
 @auth.login_required
