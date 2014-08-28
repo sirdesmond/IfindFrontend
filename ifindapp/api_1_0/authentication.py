@@ -12,11 +12,10 @@ import pdb
 import traceback
 from werkzeug.security import generate_password_hash,check_password_hash
 from firebase_token_generator import create_token
-import time
-import os
-import json
 from requests import put, get, post
 from bson.objectid import ObjectId
+import time, os, json, base64, hmac, urllib
+from hashlib import sha1
 
 
 auth = HTTPBasicAuth()
