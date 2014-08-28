@@ -47,10 +47,7 @@ class User(db.Document, UserMixin):
     confirmed = db.BooleanField(default=False)
     username = db.StringField(required=True, max_length=64)
 
-    def __init__(self, json_data=None):
-
-        super(db.Document, self).__init__()
-        super(UserMixin, self).__init__()
+    def json_to_doc(self, json_data=None):
 
         if json_data:
             try:
