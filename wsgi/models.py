@@ -45,6 +45,7 @@ class User(db.Document, UserMixin):
     role = db.StringField(required=True, max_length=64)
     password_hash = db.StringField(required=True, max_length=128)
     confirmed = db.BooleanField(default=False)
+    username = db.StringField(required=True, max_length=64)
 
     def __init__(self, json_data=None):
 
