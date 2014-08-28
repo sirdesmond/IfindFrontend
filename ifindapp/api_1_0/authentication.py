@@ -141,9 +141,13 @@ def search(searchterm, category):
 @cross_origin(origins='*')
 def sign_s3():
 	response={}
-	AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY_ID')
-	AWS_SECRET_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-	S3_BUCKET = os.environ.get('S3_BUCKET')
+	#AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY_ID')
+	#AWS_SECRET_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+	#S3_BUCKET = os.environ.get('S3_BUCKET')
+
+	 AWS_ACCESS_KEY_ID='AKIAJZ2GRGPHUXNRCGCA'
+	 AWS_SECRET_ACCESS_KEY='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'
+	 S3_BUCKET='ifindcard'
 
 	#object_name = request.args.get('s3_object_name')
 	#mime_type = request.args.get('s3_object_type')
