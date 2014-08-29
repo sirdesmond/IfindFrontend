@@ -1,13 +1,11 @@
-{ "expiration": expiration,
+{ "expiration": "2015-12-01T12:00:00.000Z",
 
 "conditions": [
 
         {"acl": "public-read" },
 
-        {"bucket": S3_BUCKET },
+        {"bucket": "ifind" },
 
-        {"key": object_name},
-        
         ["starts-with", "$key", ""],
 
         ["starts-with", "$Content-Type", ""]
