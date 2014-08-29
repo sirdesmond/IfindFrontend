@@ -23,7 +23,8 @@ class Users(CORSObject):
         data = request.json['data']
 
         input_json = {str(k): str(v) for k, v in data.iteritems()}
-        user = User(json_data=input_json).to_json(with_hash=True)
+        user = User().json_to_doc(json_data=input_json).to_json(with_hash=True)
+
         new_user = str(input_json)
 
         result = chain(register_users.s(new_user), send_confirm_email.s()).apply_async()

@@ -19,7 +19,7 @@ user_full_with_hash = Schema({
     'password': basestring,
     'role': basestring,
     'p_number': basestring
-}, error='Invalid specification for a new user')
+})
 
 user_full = Schema({
     'email': validate_email,
