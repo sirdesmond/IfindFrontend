@@ -18,7 +18,8 @@ user_full_with_hash = Schema({
     'l_name': basestring,
     'password': basestring,
     'role': basestring,
-    'p_number': basestring
+    'p_number': basestring,
+    'geninfo': basestring
 })
 
 user_full = Schema({
