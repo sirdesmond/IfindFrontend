@@ -137,8 +137,8 @@ def search(searchterm, category):
 			
 	return jsonify(response=response)
 
-@api.route('/signs3/',methods=['GET', 'OPTIONS'])
-@cross_origin(origins='*')
+@api.route('/signs3/',methods=['GET', 'POST','OPTIONS'])
+@cross_origin(origins='*',headers=['Content-Type'])
 def sign_s3():
 	response={}
 	AWS_ACCESS_KEY = 'AKIAJ6TLOGEVEZX77OUA'
@@ -166,7 +166,7 @@ def sign_s3():
 
 	signature = base64.encodestring(hmac.new(AWS_SECRET_KEY, put_request, sha1).digest())
 	signature = urllib.quote_plus(signature.strip())
-	url = 'https://%s.s3.amazonaws.com/' % (S3_BUCKET)
+	url = 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET,object_name)
 
 	return json.dumps({
 	    'signed_request': '%s?AWSAccessKeyId=%s&Expires=%d&Signature=%s' % (url, AWS_ACCESS_KEY, expires, signature),
@@ -175,7 +175,6 @@ def sign_s3():
 	     'awsKey':AWS_ACCESS_KEY,
 	     'signature':signature,
 	  })
-
 
 
 
