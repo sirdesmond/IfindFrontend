@@ -160,7 +160,9 @@ def sign_s3():
 	expires = int(time.time()+ 60 * 3)
 	amz_headers = "x-amz-acl:public-read"
 
-	put_request = "PUT\n\n\n%d\n/%s/%s" % (expires,S3_BUCKET, object_name)
+
+	dummy = 'multipart/form-data; boundary=+++++'
+	put_request = "POST\n\n%s\n%d\n/%s/%s" % (dummy,expires,S3_BUCKET, object_name)
 
 
 	policy =json.dumps({ "expiration": expires,\
@@ -184,6 +186,7 @@ def sign_s3():
 	     'awsKey':AWS_ACCESS_KEY,
 	     'signature':signature,
 	  })
+
 
 
 @api.route('/activate', methods=['POST','OPTIONS'])
