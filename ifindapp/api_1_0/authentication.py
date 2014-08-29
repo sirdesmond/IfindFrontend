@@ -162,7 +162,7 @@ def sign_s3():
 	amz_headers = "x-amz-acl:public-read"
 
 
-	#dummy = 'multipart/form-data; boundary=+++++'
+	dummy = 'multipart/form-data; boundary=+++++'
 	put_request = "POST\n\n%s\n%d\n/%s/%s" % (dummy,expires,S3_BUCKET, object_name)
 
 
