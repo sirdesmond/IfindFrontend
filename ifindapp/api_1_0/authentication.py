@@ -176,7 +176,7 @@ def sign_s3():
     
 	policyBase64 = base64.b64encode(str(policy)).encode("UTF-8")
 
-	signature = base64.encodestring(hmac.new(AWS_SECRET_KEY, put_request, sha1).digest())
+	signature = base64.encodestring(hmac.new(AWS_SECRET_KEY, policyBase64, sha1).digest())
 	signature = urllib.quote_plus(signature.strip())
 	url = 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET,object_name)
 
