@@ -169,9 +169,10 @@ def sign_s3():
 
 	policy =json.dumps({ "expiration": expires,\
         "conditions": [\
-            {"bucket": S3_BUCKET},\
             {"acl": 'public-read'},\
-            {"key": object_name},\
+            {"bucket": S3_BUCKET},\
+            {"success_action_status" : "201"},\
+        	["starts-with", "$key", "uploads/"]
             ["starts-with", "$Content-Type", ""],\
         ]});
     
