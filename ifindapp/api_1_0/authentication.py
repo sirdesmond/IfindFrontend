@@ -158,14 +158,15 @@ def sign_s3():
 		mime_type = request.args.get('s3_object_type')
 
 	expires = long(time.time()+ 60 * 3)
+	expiration= datetime.datetime.utcfromtimestamp(expires).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 	amz_headers = "x-amz-acl:public-read"
 
 
-	dummy = 'multipart/form-data; boundary=+++++'
+	#dummy = 'multipart/form-data; boundary=+++++'
 	put_request = "PUT\n\n\n%d\n/%s/%s" % (expires,S3_BUCKET, object_name)
 
 
-	policy =json.dumps({ "expiration": expires,\
+	policy =json.dumps({ "expiration": expiration,\
         "conditions": [\
             {"bucket": S3_BUCKET},\
             {"key": object_name},\
@@ -175,7 +176,7 @@ def sign_s3():
     
 	policyBase64 = base64.b64encode(str(policy)).encode("UTF-8")
 
-	signature = base64.encodestring(hmac.new(AWS_SECRET_KEY, put_request, sha1).digest())
+	signature = base64.encodestring(hmac.new(AWS_SECRET_KEY, policyBase64, sha1).digest())
 	signature = urllib.quote_plus(signature.strip())
 	url = 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET,object_name)
 
@@ -186,7 +187,6 @@ def sign_s3():
 	     'awsKey':AWS_ACCESS_KEY,
 	     'signature':signature,
 	  })
-
 
 
 @api.route('/activate', methods=['POST','OPTIONS'])
