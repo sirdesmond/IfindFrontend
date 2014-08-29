@@ -171,7 +171,6 @@ def sign_s3():
         "conditions": [\
             {"acl": 'public-read'},\
             {"bucket": S3_BUCKET},\
-            {"success_action_status" : "201"},\
         	["starts-with", "$key", "uploads/"]
             ["starts-with", "$Content-Type", ""],\
         ]});
