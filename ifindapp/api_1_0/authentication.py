@@ -153,18 +153,28 @@ def sign_s3():
 
 	put_request = "PUT\n\n\n%d\n/%s/%s" % (expires,S3_BUCKET, object_name)
 
+
+	policy =json.dumps({ "expiration": expires,\
+        "conditions": [\
+            {"bucket": S3_BUCKET},\
+            {"key": object_name},\
+            {"acl": 'public-read'},\
+            ["starts-with", "$Content-Type", ""],\
+        ]});
+    
+	policyBase64 = base64.encodestring(str(policy))
+
 	signature = base64.encodestring(hmac.new(AWS_SECRET_KEY, put_request, sha1).digest())
 	signature = urllib.quote_plus(signature.strip())
-
-
-	url = 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, object_name)
+	url = 'https://%s.s3.amazonaws.com/' % (S3_BUCKET)
 
 	return json.dumps({
 	    'signed_request': '%s?AWSAccessKeyId=%s&Expires=%d&Signature=%s' % (url, AWS_ACCESS_KEY, expires, signature),
-	     'url': url,
+	     'bucket': S3_BUCKET,
+	     'policy':policyBase64,
+	     'awsKey':AWS_ACCESS_KEY,
+	     'signature':signature,
 	  })
-
-	#bucket: bucket, awsKey: awsKey, policy: policyBase64, signature: signature
 
 
 
