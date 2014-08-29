@@ -1,4 +1,4 @@
-{ "expiration": expiration,
+{ "expiration": "2015-12-01T12:00:00.000Z",
 
 "conditions": [
 
@@ -6,7 +6,7 @@
 
         {"bucket": S3_BUCKET },
 
-        {"key": object_name},
+        {"key": "ifind"},
         
         ["starts-with", "$Content-Type", ""]
 
