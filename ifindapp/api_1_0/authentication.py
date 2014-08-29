@@ -157,7 +157,7 @@ def sign_s3():
 		object_name = request.args.get('s3_object_name')
 		mime_type = request.args.get('s3_object_type')
 
-	expires = int(time.time()+ 60 * 3)
+	expires = long(time.time()+ 60 * 3)
 	amz_headers = "x-amz-acl:public-read"
 
 
@@ -173,7 +173,7 @@ def sign_s3():
             ["starts-with", "$Content-Type", ""],\
         ]});
     
-	policyBase64 = base64.encodestring(str(policy))
+	policyBase64 = base64.b64encode(str(policy)).encode("UTF-8")
 
 	signature = base64.encodestring(hmac.new(AWS_SECRET_KEY, put_request, sha1).digest())
 	signature = urllib.quote_plus(signature.strip())
