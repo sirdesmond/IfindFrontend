@@ -143,7 +143,7 @@ def sign_s3():
 	response={}
 	AWS_ACCESS_KEY = 'AKIAJ6TLOGEVEZX77OUA'
 	AWS_SECRET_KEY = '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'
-	S3_BUCKET = 'ifindcard'
+	S3_BUCKET = 'ifind'
 
 	if request.method=='POST':
 		print 'I am post'
