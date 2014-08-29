@@ -163,7 +163,7 @@ def sign_s3():
 
 
 	dummy = 'multipart/form-data; boundary=+++++'
-	put_request = "POST\n\n%s\n%d\n/%s/%s" % (dummy,expires,S3_BUCKET, object_name)
+	put_request = "PUT\n\n\n%d\n/%s/%s" % (expires,S3_BUCKET, object_name)
 
 
 	policy =json.dumps({ "expiration": expiration,\
