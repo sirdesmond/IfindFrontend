@@ -1,13 +1,9 @@
 { "expiration": "2015-12-01T12:00:00.000Z",
 
 "conditions": [
-
-        {"acl": "public-read" },
-
-        {"bucket": S3_BUCKET },
-
+        {"bucket": S3_BUCKET },        
         {"key": "ifind"},
-        
-        ["starts-with", "$Content-Type", ""]
-
+        {"acl": "public-read" },
+        ["starts-with", "$Content-Type", ""],
+        ["content-length-range", 0, 524288000]
 }
