@@ -145,8 +145,17 @@ def sign_s3():
 	AWS_SECRET_KEY = '8RincM+Jb0ldHoQGeZiR/Luv/bDLiCxrri1F7slp'
 	S3_BUCKET = 'ifindcard'
 
-	object_name = request.args.get('s3_object_name')
-	mime_type = request.args.get('s3_object_type')
+	if request.method=='POST':
+		print 'I am post'
+		data = request.json
+		if 's3_object_name' in data:
+			object_name = data['s3_object_name']
+		if 's3_object_type' in data:
+			mime_type = data['s3_object_type']
+	else:
+		print 'I am something else'
+		object_name = request.args.get('s3_object_name')
+		mime_type = request.args.get('s3_object_type')
 
 	expires = int(time.time()+ 60 * 3)
 	amz_headers = "x-amz-acl:public-read"
@@ -175,7 +184,6 @@ def sign_s3():
 	     'awsKey':AWS_ACCESS_KEY,
 	     'signature':signature,
 	  })
-
 
 
 @api.route('/activate', methods=['POST','OPTIONS'])
