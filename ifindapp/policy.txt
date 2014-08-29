@@ -6,7 +6,7 @@
 
         {"bucket": S3_BUCKET },
 
-        ["starts-with", "$key", "uploads/"],
+        {"key": object_name},
         
         ["starts-with", "$Content-Type", ""]
 
