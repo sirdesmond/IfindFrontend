@@ -166,7 +166,7 @@ def sign_s3():
 	#put_request = "POST\n\n%s\n%d\n/%s/%s" % (dummy,expires,S3_BUCKET, object_name)
 
     
-	input = open("repo/ifindapp/policy.txt", "rb")
+	input = open("app-root/repo/ifindapp/policy.txt", "rb")
 	policy = input.read()
     
 	policyBase64 = base64.b64encode(policy).encode("UTF-8")
