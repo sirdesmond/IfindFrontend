@@ -162,20 +162,14 @@ def sign_s3():
 	amz_headers = "x-amz-acl:public-read"
 
 
-#<StringToSign>POST\n\nmultipart/form-data; boundary=+++++\n1409335210\n/ifind/1409335028842.jpg</StringToSign>
-	dummy = 'multipart/form-data; boundary=+++++'
-	put_request = "POST\n\n%s\n%d\n/%s/%s" % (dummy,expires,S3_BUCKET, object_name)
+	#dummy = 'multipart/form-data; boundary=+++++'
+	#put_request = "POST\n\n%s\n%d\n/%s/%s" % (dummy,expires,S3_BUCKET, object_name)
 
-
-	policy =json.dumps({ "expiration": expires,\
-        "conditions": [\
-            {"acl": 'public-read'},\
-            {"bucket": S3_BUCKET},\
-        	["starts-with", "$key", "uploads/"]
-            ["starts-with", "$Content-Type", ""],\
-        ]});
     
-	policyBase64 = base64.b64encode(str(policy)).encode("UTF-8")
+	input = open("policy.txt", "rb")
+	policy = input.read()
+    
+	policyBase64 = base64.b64encode(policy).encode("UTF-8")
 
 	signature = base64.encodestring(hmac.new(AWS_SECRET_KEY, policyBase64, sha1).digest())
 	signature = urllib.quote_plus(signature.strip())
