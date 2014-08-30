@@ -63,19 +63,19 @@ class Business(CORSObject):
 
         return make_ok(data=response)
 
-    @validate_json(user_full_with_hash.validate)
-    def post(self):
-        response = {}
-        data = request.json['data']
+    # @validate_json(user_full_with_hash.validate)
+    # def post(self):
+    #     response = {}
+    #     data = request.json['data']
 
-        input_json = {str(k): str(v) for k, v in data.iteritems()}
-        Business = Business()
-        business.json_to_doc(json_data=input_json)
-        input_json = business.to_json(with_hash=True)
-        print str(input_json)
+    #     input_json = {str(k): str(v) for k, v in data.iteritems()}
+    #     Business = Business()
+    #     business.json_to_doc(json_data=input_json)
+    #     input_json = business.to_json(with_hash=True)
+    #     print str(input_json)
 
-        new_business = str(input_json)
-        result = chain(register_users.s(new_user), send_confirm_email.s()).apply_async()
-        response['message'] = 'Registration submitted successfully'
+    #     new_business = str(input_json)
+    #     result = chain(register_users.s(new_user), send_confirm_email.s()).apply_async()
+    #     response['message'] = 'Registration submitted successfully'
 
-        return make_ok(reponse=response)
+    #     return make_ok(reponse=response)
