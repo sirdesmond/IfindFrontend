@@ -12,12 +12,11 @@ import pdb
 import traceback
 from werkzeug.security import generate_password_hash,check_password_hash
 from firebase_token_generator import create_token
-import time
-import os
-import json
 from requests import put, get, post
 from bson.objectid import ObjectId
-
+import time, os, json, base64, hmac, urllib
+from hashlib import sha1
+import datetime
 
 auth = HTTPBasicAuth()
 
@@ -120,6 +119,8 @@ def register():
 
 @api.route('/search/<searchterm>/<category>',methods=['GET', 'OPTIONS'])
 @cross_origin(origins='*', headers=['Authorization'])
+
+#@auth.login_required
 def search(searchterm, category):
 	response = {}
 	##analyze searchterm
@@ -136,6 +137,53 @@ def search(searchterm, category):
 
 			
 	return jsonify(response=response)
+
+@api.route('/signs3',methods=['GET','POST','OPTIONS'])
+@cross_origin(origins='*',headers=['Content-Type'])
+def sign_s3():
+	response={}
+	AWS_ACCESS_KEY = 'AKIAJ6TLOGEVEZX77OUA'
+	AWS_SECRET_KEY = '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'
+	S3_BUCKET = 'ifind'
+
+	if request.method=='POST':
+		print 'I am post'
+		data = request.json
+		if 's3_object_name' in data:
+			object_name = data['s3_object_name']
+		if 's3_object_type' in data:
+			mime_type = data['s3_object_type']
+	else:
+		print 'I am something else'
+		object_name = request.args.get('s3_object_name')
+		mime_type = request.args.get('s3_object_type')
+
+	expires = long(time.time()+ 60 * 3)
+	expiration= datetime.datetime.utcfromtimestamp(expires).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+	amz_headers = "x-amz-acl:public-read"
+
+
+	#dummy = 'multipart/form-data; boundary=+++++'
+	#put_request = "POST\n\n%s\n%d\n/%s/%s" % (dummy,expires,S3_BUCKET, object_name)
+
+    
+	input = open("policy.txt", "rb")
+	policy = input.read()
+    
+	policyBase64 = base64.b64encode(policy).encode("UTF-8")
+
+	signature = base64.encodestring(hmac.new(AWS_SECRET_KEY, policyBase64, sha1).digest())
+	signature = urllib.quote_plus(signature.strip())
+	url = 'http://%s.s3.amazonaws.com/%s' % (S3_BUCKET,object_name)
+
+	return json.dumps({
+	    'signed_request': '%s?AWSAccessKeyId=%s&Expires=%d&Signature=%s' % (url, AWS_ACCESS_KEY, expires, signature),
+	     'bucket': S3_BUCKET,
+	     'policy':policyBase64,
+	     'awsKey':AWS_ACCESS_KEY,
+	     'signature':signature,
+	  })
+
 
 @api.route('/activate', methods=['POST','OPTIONS'])
 @cross_origin(origins='*',headers=['Authorization','Content-Type'])
