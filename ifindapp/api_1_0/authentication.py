@@ -137,7 +137,7 @@ def search(searchterm, category):
 			
 	return jsonify(response=response)
 
-@api.route('/signs3',methods=['GET','POST','OPTIONS'])
+@api.route('/signs3',methods=['POST','OPTIONS'])
 @cross_origin(origins='*',headers=['Content-Type'])
 def sign_s3():
 	response={}
