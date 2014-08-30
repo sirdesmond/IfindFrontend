@@ -23,10 +23,11 @@ class Users(CORSObject):
         data = request.json['data']
 
         input_json = {str(k): str(v) for k, v in data.iteritems()}
-        user = User().json_to_doc(json_data=input_json).to_json(with_hash=True)
-
+        user = User()
+        user.json_to_doc(json_data=input_json)
+        input_json = user.to_json(with_hash=True)
+        print str(input_json)
         new_user = str(input_json)
-
         result = chain(register_users.s(new_user), send_confirm_email.s()).apply_async()
         response['message'] = 'Registration submitted successfully'
 

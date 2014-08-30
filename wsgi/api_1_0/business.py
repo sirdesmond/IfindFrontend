@@ -7,7 +7,7 @@ from flask.ext.cors import cross_origin
 blueprint = Blueprint(__name__, __name__)
 
 
-@blueprint.route('', methods=['GET', 'OPTIONS'])
+@blueprint.route('', methods=['GET', 'POST' 'OPTIONS'])
 @cross_origin(origins='*', headers=['Authorization', 'Content-Type'])
 @check(if_content_exists_then_is_json)
 @http_method_dispatcher
@@ -62,3 +62,20 @@ class Business(CORSObject):
         response['user'] = user.to_json()
 
         return make_ok(data=response)
+
+    @validate_json(user_full_with_hash.validate)
+    def post(self):
+        response = {}
+        data = request.json['data']
+
+        input_json = {str(k): str(v) for k, v in data.iteritems()}
+        Business = Business()
+        business.json_to_doc(json_data=input_json)
+        input_json = business.to_json(with_hash=True)
+        print str(input_json)
+
+        new_business = str(input_json)
+        result = chain(register_users.s(new_user), send_confirm_email.s()).apply_async()
+        response['message'] = 'Registration submitted successfully'
+
+        return make_ok(reponse=response)
