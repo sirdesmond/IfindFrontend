@@ -162,11 +162,12 @@ class User(db.DynamicDocument, UserMixin):
             'f_name': self.f_name,
             'l_name': self.l_name,
             'role': self.role,
-            'confirmed': self.confirmed,
-            'extrainfo': self.extr_info
+            'confirmed': self.confirmed
         }
         if with_hash:
+            # When generating the new user these field need to be availabe
             json_user['pswrd_hash'] = self.password_hash
+            json_user['extrainfo'] = self.extr_info
 
         return json.dumps(json_user)
 
