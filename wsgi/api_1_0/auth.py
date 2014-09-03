@@ -33,8 +33,8 @@ class Auth(CORSObject):
     @validate_credentials(verify_password)
     def post(self):
         print 'Request Header POST:AUTH \n' + str(request.headers)
-
-        fb_payload = {"id": g.current_user.userid}
+        print 'User id' + str(g.current_user.id)
+        fb_payload = {"id": str(g.current_user.id)}
 
         response = {
             'ifcToken': g.current_user.generate_auth_token(
@@ -42,5 +42,6 @@ class Auth(CORSObject):
             'ifcexp': 3600,
             'fbToken': g.current_user.generate_fb_token(payload=fb_payload)
         }
-        print type(g.current_user)
         return make_ok(tokens=response, user=g.current_user.to_json())
+
+

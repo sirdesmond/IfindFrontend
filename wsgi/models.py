@@ -37,16 +37,21 @@ user_partial = Schema({
     '_id': basestring,
 })
 
+class Status(db.EmbeddedDocument):
+    verified = db.BooleanField()
+    vcode = db.StringField()
+    vcode_exp = db.FloatField()
+
 
 class User(db.DynamicDocument, UserMixin):
-    userid = db.StringField()
     email = db.StringField(required=True, unique=True)
     f_name = db.StringField(required=True, max_length=64)
     l_name = db.StringField(required=True, max_length=64)
     role = db.StringField(required=True, max_length=64)
     password_hash = db.StringField(required=True, max_length=128)
-    confirmed = db.BooleanField(default=False)
     username = db.StringField(required=True, max_length=64)
+    v_status = db.EmbeddedDocumentField(Status)
+
 
     def json_to_doc(self, json_data=None):
 
@@ -57,6 +62,8 @@ class User(db.DynamicDocument, UserMixin):
                 self.password = json_data.get('password')
                 self.f_name = json_data.get('f_name')
                 self.l_name = json_data.get('l_name')
+                self.p_number = json_data.get('p_number')
+
                 j = {str(k): str(v) for k, v in eval(json_data.get('geninfo')).iteritems()}
                 self.extr_info = j
 
@@ -156,17 +163,26 @@ class User(db.DynamicDocument, UserMixin):
         return True
 
     def to_json(self, with_hash=False):
+        uid = str(self.id)
+        print type(uid)
         json_user = {
-            'userid': self.userid,
+            'userid': uid,
             'email': self.email,
             'f_name': self.f_name,
             'l_name': self.l_name,
             'role': self.role,
-            'confirmed': self.confirmed,
-            'extrainfo': self.extr_info
+            
         }
         if with_hash:
-            json_user['pswrd_hash'] = self.password_hash
+            # When generating the new user these field need to be availabe
+            json_user['password_hash'] = self.password_hash
+            json_user['extrainfo'] = self.extr_info
+            json_user['p_number'] = self.p_number
+            del json_user['userid']
+        try:
+            json_user['verified'] = self.v_status.verified
+        except Exception, e:
+            print str(e)       
 
         return json.dumps(json_user)
 
@@ -300,9 +316,10 @@ class Business(db.DynamicDocument, UserMixin):
             'extrainfo': self.extr_info
         }
         if with_hash:
-            json_user['pswrd_hash'] = self.password_hash
+            json_user['password_hash'] = self.password_hash
 
         return json.dumps(json_user)
+
 
 
 

@@ -1,10 +1,10 @@
 from celery import Celery
 
-celery = Celery('tasks', broker='amqp://guest:123456@107.170.146.210:5672')
+celery = Celery('tasks', broker='amqp://guest:123456@dannernaytion.com:5672')
 
 
 @celery.task(name='tasks.register_user')
-def register_users(data):
+def register_user(data):
     pass
 
 
@@ -13,8 +13,8 @@ def send_confirm_email(self, *args, **kwargs):
     pass
 
 
-@celery.task(name='confirm_user')
-def confirm_user(self, id):
+@celery.task(name='tasks.confirm_user')
+def confirm_user(email):
     pass
 
 

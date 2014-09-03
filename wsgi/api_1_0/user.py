@@ -1,9 +1,10 @@
 from flask import Blueprint, request
 from celery import chain
 from models import (User, user_full, user_partial, user_full_with_hash)
-from tasks.tasks import (register_users, send_confirm_email)
+from tasks.tasks import (register_user, send_confirm_email, confirm_user)
 from flask.ext.cors import cross_origin
 import json
+import time
 from lib import (check, http_method_dispatcher,
                  if_content_exists_then_is_json, validate_credentials,
                  CORSObject, make_ok, make_error, validate_json)
@@ -26,12 +27,13 @@ class Users(CORSObject):
         user = User()
         user.json_to_doc(json_data=input_json)
         input_json = user.to_json(with_hash=True)
-        print str(input_json)
+        print "This is the user being processed :"+str(input_json)
         new_user = str(input_json)
-        result = chain(register_users.s(new_user), send_confirm_email.s()).apply_async()
+        result = chain(register_user.s(new_user),
+                       send_confirm_email.s()).apply_async()
         response['message'] = 'Registration submitted successfully'
 
-        return make_ok(reponse=response)
+        return make_ok(user=user.to_json())
 
     def delete(self):
         if False:
@@ -39,7 +41,7 @@ class Users(CORSObject):
             return make_ok(reponse=reponse)
 
 
-@blueprint.route('/<id>', methods=['GET', 'PATCH', 'PUT', 'DELETE'])
+@blueprint.route('/mngr/<controller>', methods=['GET', 'PATCH', 'PUT', 'DELETE'])
 @cross_origin(origins='*', headers=['Authorization', 'Content-Type'])
 @check(if_content_exists_then_is_json)
 # @check(url_id_matches_body)
@@ -69,9 +71,46 @@ class UsersWithId(CORSObject):
     def get(self):
         pass
 
-    @validate_credentials(verify_token)
-    def put(self):
-        pass
+    # @validate_credentials(verify_token)
+    def put(self, controller):
+        
+
+        data = request.json
+        update = {}
+        input_json = {str(k): str(v) for k, v in data.iteritems()}
+        print "Json data: "+str(input_json)+str(controller)
+
+        if str(controller) == 'activate':
+            user = User.objects.get(email=input_json.get("email"))
+            print "Current User: "+str(user.id)
+            
+            v_status = user["v_status"]
+            '''
+            retrieve the users v_status compare submitted code to the actual if
+            success call the confirm, if not send no good request.
+            '''
+            isconfirmed = False
+            for key in {'vcode', 'vcode_exp', 'verified'}:
+                if key not in v_status:
+                    make_error("Bad Request", 401)
+            
+            print v_status["vcode_exp"] 
+            
+            print time.time()
+
+
+            if not v_status["verified"] and v_status["vcode_exp"] > time.time():
+                print v_status["vcode"] == input_json.get("code")
+
+                if v_status["vcode"] == input_json.get("code"):
+                    isconfirmed = True
+            
+            print isconfirmed 
+            if isconfirmed:
+
+                confirm_user.delay(str(user.email))
+
+                return make_ok(response="Success")
 
     @validate_credentials(verify_token)
     def patch(self):
