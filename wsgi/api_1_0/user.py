@@ -1,6 +1,6 @@
 from flask import Blueprint, request, g
 from celery import chain
-from models import (User, user_full, user_profile_partial, user_full_with_hash)
+from models.user import (User, user_full, user_profile_partial, user_full_with_hash)
 from tasks.tasks import (register_user, send_confirm_email,
                          confirm_user, add_contact)
 from flask.ext.cors import cross_origin
