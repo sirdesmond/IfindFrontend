@@ -18,6 +18,10 @@ def confirm_user(email):
     pass
 
 
+@celery.task(name='tasks.add_contact')
+def add_contact(self, **kwargs):
+    pass
+
 def test():
     from celery import chain
     user_mock=dict(password='mynameis', u_name='Melvin', email='dannernaytion@gmail.com', f_name='Melvin', l_name='Harris', bun='devuser0002')

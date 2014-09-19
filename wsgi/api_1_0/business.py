@@ -1,13 +1,13 @@
 from flask import (Blueprint, request, g, jsonify)
-from models import User
+from models.user import User
 from lib import (check, http_method_dispatcher,
                  if_content_exists_then_is_json, validate_credentials,
-                 CORSObject, make_ok, make_error)
+                 CORSObject, make_ok, make_error, user_is_bus_admin)
 from flask.ext.cors import cross_origin
 blueprint = Blueprint(__name__, __name__)
 
 
-@blueprint.route('', methods=['GET', 'POST' 'OPTIONS'])
+@blueprint.route('', methods=['GET', 'POST', 'OPTIONS'])
 @cross_origin(origins='*', headers=['Authorization', 'Content-Type'])
 @check(if_content_exists_then_is_json)
 @http_method_dispatcher
@@ -22,6 +22,7 @@ class Business(CORSObject):
 
             if not user:
                 added_headers = None
+                print 'Bad token'
                 return make_error('Invalid token', 401,
                                   additional_headers=added_headers)
 
@@ -29,6 +30,7 @@ class Business(CORSObject):
             return None
 
         except Exception, e:
+            print str(e)
             return make_error(str(e), 401)
 
     @validate_credentials(verify_token)
@@ -53,7 +55,7 @@ class Business(CORSObject):
         ##analyze searchterm
         ##if searchcategory is 0=BUN#,1=PHONE#,2=QRCODE
         if typ == '0':
-            user = User.objects.get(userid=q)
+            user = User.objects.get(bun=q)
         elif typ == '1':
             user = User.objects.get(phone=q)
         elif typ == '2':
@@ -79,3 +81,35 @@ class Business(CORSObject):
     #     response['message'] = 'Registration submitted successfully'
 
     #     return make_ok(reponse=response)
+
+@blueprint.route('', methods=['GET', 'POST', 'PUT', 'OPTIONS'])
+@cross_origin(origins='*', headers=['Authorization', 'Content-Type'])
+@check(if_content_exists_then_is_json)
+@http_method_dispatcher
+class BusinessWithId(CORSObject):
+
+    def verify_token(*args, **kwargs):
+        try:
+            token = str(request.headers).split(
+                'Authorization: Basic ')[1].split('\r')[0]
+            print 'From verify token' + token
+            user = User.verify_auth_token(token)
+
+            if not user:
+                added_headers = None
+                print 'Bad token'
+                return make_error('Invalid token', 401,
+                                  additional_headers=added_headers)
+
+            g.current_user = user
+            return None
+
+        except Exception, e:
+            print str(e)
+            return make_error(str(e), 401)
+
+
+    @check(user_is_bus_admin)
+    @validate_credentials(verify_token)
+    def put(self):
+        pass

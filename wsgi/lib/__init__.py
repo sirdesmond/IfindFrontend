@@ -48,6 +48,15 @@ def make_ok(**kwargs):
     else:
         return jsonify(status='ok')
 
+def make_ok_user(**kwargs):
+    """Make JSON OK message response."""
+    print type(kwargs)
+    if kwargs:
+        return jsonify(status='ok', user=kwargs['user'])
+    else:
+        return jsonify(status='ok')
+
+
 
 def make_error(message, status_code, additional_headers=None):
     """Return a suitable HTML or JSON error message response."""
@@ -101,7 +110,6 @@ def http_method_dispatcher(cls):
             f = getattr(instance, method_name)
         except AttributeError:
             abort(405)
-        print 'Args' + str(request.args)
         return f(*args, **kwargs)
 
     # Name the method_dispatcher function after the class so that it is unique.
@@ -165,7 +173,6 @@ def validate_json(validate_function, default=None):
     @decorator
     def validate_with_validate_function(f, *args, **kwargs):
         data = request.json['data']
-
         input_json = {str(k): str(v) for k, v in data.iteritems()}
 
         if input_json is None and callable(default):
@@ -177,6 +184,18 @@ def validate_json(validate_function, default=None):
             return make_error(str(e), 400)
         return f(*args, **kwargs)
     return validate_with_validate_function
+
+def user_is_bus_admin(*args, **kwargs):
+    """Return error response if content exists and user is declared not ADMIN.
+
+    Otherwise return None.
+
+    Intended to be used with :func:`check`.
+
+    """
+    Business.object.get()
+    g.current_user.id
+    pass
 
 
 def if_content_exists_then_is_json(*args, **kwargs):
@@ -211,5 +230,4 @@ class CORSObject(object):
 
     @cross_origin(origins='*', headers=['Content-Type'])
     def options(self):
-        print 'OPTIONS IS RUNNING!!!'
         pass
