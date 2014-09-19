@@ -18,7 +18,11 @@ class Auth(CORSObject):
         auth = request.authorization
         uname = auth.username
         c_password = auth.password
-        user = User.objects.get(email=uname)
+        user = {}
+        try:
+            user = User.objects.get(email=uname)  
+        except Exception, e:
+            print str(e)
 
         if not user:
             added_headers = None
