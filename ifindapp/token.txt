@@ -1,5 +1,3 @@
-Emeka : eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJpYXQiOiAxNDA4MTU4NTk0LCAiZCI6IHsiaWQiOiAiZGV2dXNlcjAwMyIsICJuYW1lIjogIkVtZWthIn0sICJ2IjogMH0.SL5U9VyDwOawF04TG7RiPEZJINpFkpd3Gd_dUVSm3eQ
-
-
-firebase secret
-FgUjXoxvFKgsUDdgfONGnOqP3dOi9ZZe3Kkb5bXK
+MAIL_USERNAME=desmond.appiah@gmail.com
+MAIL_PASSWORD=kofikyei
+IFIND_ADMIN="IfindCard Admin"

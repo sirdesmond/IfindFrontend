@@ -70,9 +70,7 @@ class User(db.DynamicDocument, UserMixin):
                 self.f_name = json_data.get('f_name')
                 self.l_name = json_data.get('l_name')
                 self.p_number = json_data.get('p_number')
-
-                j = {str(k): str(v) for k, v in eval(json_data.get('geninfo')).iteritems()}
-                self.extr_info = j
+                self.country = json_data.get('country')
 
             except Exception, e:
                 raise e
@@ -180,6 +178,7 @@ class User(db.DynamicDocument, UserMixin):
                 'f_name': self.f_name,
                 'l_name': self.l_name,
                 'role': self.role,
+                'country': self.country,
             }
         if _type == 1:
             json_user = {
@@ -188,6 +187,7 @@ class User(db.DynamicDocument, UserMixin):
                 'f_name': self.f_name,
                 'l_name': self.l_name,
                 'role': self.role,
+                'country': self.country,
                 'bun': self.bun,
                 'profile': {
                     'bsid': self.profile.bsid,
@@ -200,7 +200,6 @@ class User(db.DynamicDocument, UserMixin):
         if with_hash:
             # When generating the new user these field need to be availabe
             json_user['password_hash'] = self.password_hash
-            json_user['extrainfo'] = self.extr_info
             json_user['p_number'] = self.p_number
             del json_user['userid']
         try:
