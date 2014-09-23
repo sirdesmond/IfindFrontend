@@ -19,7 +19,7 @@ user_full_with_hash = Schema({
     'password': basestring,
     'role': basestring,
     'p_number': basestring,
-    'geninfo': basestring
+    'country': basestring
 })
 
 user_full = Schema({
@@ -28,6 +28,7 @@ user_full = Schema({
     'f_name': basestring,
     'l_name': basestring,
     'role': basestring,
+    'country':basestring,
     '_type': int
 })
 
@@ -53,6 +54,7 @@ class User(db.DynamicDocument, UserMixin):
     role = db.StringField(required=True, max_length=64)
     password_hash = db.StringField(required=True, max_length=128)
     username = db.StringField(required=True, max_length=64)
+    country = db.StringField(required=True, max_length=64)
     v_status = db.EmbeddedDocumentField(Status)
     profile = db.EmbeddedDocumentField(Profile)
     bun = db.StringField(unique=True, max_length=28)

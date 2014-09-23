@@ -22,6 +22,10 @@ def confirm_user(email):
 def add_contact(self, **kwargs):
     pass
 
+@celery.task(name='tasks.forgot_password')
+def forgot_password(self, **kwargs):
+    pass
+
 def test():
     from celery import chain
     user_mock=dict(password='mynameis', u_name='Melvin', email='dannernaytion@gmail.com', f_name='Melvin', l_name='Harris', bun='devuser0002')
