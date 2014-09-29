@@ -19,8 +19,6 @@ class Business(CORSObject):
             token = str(request.headers).split(
                 'Authorization: Basic ')[1].split('\r')[0]
             print 'From verify token ' + token
-            token64 = base64.decodestring(token)
-            print 'From verify token ' + token64
             user = User.verify_auth_token(token)
 
             if not user:
