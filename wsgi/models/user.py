@@ -56,6 +56,7 @@ class User(db.DynamicDocument, UserMixin):
     v_status = db.EmbeddedDocumentField(Status)
     profile = db.EmbeddedDocumentField(Profile)
     bun = db.StringField(unique=True, max_length=28)
+    p_number = db.StringField(unique=True, max_length=10)
 
 
     def json_to_doc(self, json_data=None):
@@ -187,6 +188,7 @@ class User(db.DynamicDocument, UserMixin):
                 'l_name': self.l_name,
                 'role': self.role,
                 'bun': self.bun,
+                'p_number':self.p_number,
                 'profile': {
                     'bsid': self.profile.bsid,
                     'bsname': self.profile.bsname

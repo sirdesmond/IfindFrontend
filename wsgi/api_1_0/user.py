@@ -223,7 +223,7 @@ class UserWithId(CORSObject):
             raise e
 
         user_json = user.to_json(_type=1) if user else None
-
+        print "Got User"
         print user_json
         return make_ok_user(user=user_json)
 
