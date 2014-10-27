@@ -1,4 +1,4 @@
-#!/usr/bin/pyton
+#!/usr/bin/python
 import os
 import sys
 
@@ -6,15 +6,16 @@ sys.path.insert(0, os.path.dirname(__file__) or '.')
 print os.path.dirname(__file__)
 
 # try:
-virtenv = os.environ['OPENSHIFT_PYTHON_DIR'] + '/virtenv/'
-virtualenv = os.path.join(virtenv, 'bin/activate_this.py')
+#virtenv = os.environ['OPENSHIFT_PYTHON_DIR'] + '/virtenv/'
+#virtualenv = os.path.join(virtenv, 'bin/activate_this.py')
 # except Exception:
 #     virtualenv = os.path.join(os.environ['VIRTUALENV'],'bin/activate_this.py')
 
-PY_CACHE = os.path.join(virtenv, 'lib', os.environ['OPENSHIFT_PYTHON_VERSION'], 'site-packages')
-os.environ['PYTHON_EGG_CACHE'] = os.path.join(PY_CACHE)
+#PY_CACHE = os.path.join(virtenv, 'lib', os.environ['OPENSHIFT_PYTHON_VERSION'], 'site-#packages')
+#os.environ['PYTHON_EGG_CACHE'] = os.path.join(PY_CACHE)
 try:
-    execfile(virtualenv, dict(__file__=virtualenv))
+    pass
+    #execfile(virtualenv, dict(__file__=virtualenv))
 except IOError:
     pass
 

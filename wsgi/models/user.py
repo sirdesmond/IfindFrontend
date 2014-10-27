@@ -22,7 +22,7 @@ user_full_with_hash = Schema({
     'country': basestring
 })
 
-user_full = Schema({
+user_full = Schema({        
     'email': validate_email,
     'u_name': basestring,
     'f_name': basestring,
@@ -104,6 +104,7 @@ class User(db.DynamicDocument, UserMixin):
             data = s.loads(token)
         except:
             return None
+        print User.objects.get(id=data['id'])
         return User.objects.get(id=data['id'])
 
     def generate_confirmation_token(self, expiration=3600):

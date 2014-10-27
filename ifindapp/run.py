@@ -1,3 +1,5 @@
+
+import sys
 import os
 from ifindapp import create_app,db
 from flask import redirect
@@ -25,3 +27,5 @@ def tests():
 
 if __name__ == '__main__':
 	manager.run() 
+else:
+		print 'I got here instead'

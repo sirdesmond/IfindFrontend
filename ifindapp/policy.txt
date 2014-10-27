@@ -6,9 +6,7 @@
 
         {"bucket": "ifind" },
 
-        ["starts-with", "$key", ""],
-
-        ["starts-with", "$Content-Type", ""]
+        ["starts-with", "$key", "00002"],
 
         ]
 
