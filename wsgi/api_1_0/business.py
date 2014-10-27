@@ -5,6 +5,7 @@ from lib import (check, http_method_dispatcher,
                  if_content_exists_then_is_json, validate_credentials,
                  CORSObject, make_ok, make_error, user_is_bus_admin)
 from flask.ext.cors import cross_origin
+import base64
 blueprint = Blueprint(__name__, __name__)
 
 
@@ -19,8 +20,7 @@ class Business(CORSObject):
             token = str(request.headers).split(
                 'Authorization: Basic ')[1].split('\r')[0]
 
-            token = base64.decodeString(token)
-            print 'From verify token:' + token
+            print 'From verify token ' + token
             user = User.verify_auth_token(token)
 
             if not user:
