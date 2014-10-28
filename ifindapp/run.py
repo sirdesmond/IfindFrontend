@@ -27,5 +27,3 @@ def tests():
 
 if __name__ == '__main__':
 	manager.run() 
-else:
-		print 'I got here instead'
