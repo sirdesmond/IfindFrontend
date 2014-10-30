@@ -147,7 +147,7 @@ def search(searchterm, category):
 @api.route('/signs3/<bunid>',methods=['GET','OPTIONS'])
 @cross_origin(origins='*',headers=[])
 def sign_s3(bunid):
-	response={}
+	response=[]
 	access_key = os.environ['AWS_ACCESS_KEY_ID']
 	secret_key = os.environ['AWS_SECRET_ACCESS_KEY']
 	bucket = 'ifindcard'
@@ -162,15 +162,14 @@ def sign_s3(bunid):
 		if str(bunid) in str(key):
 			key.set_canned_acl('private')
 			print "{name}\t{size}\t{modified}".format(name=key.name,size=key.size,modified=key.last_modified)
-			url = key.generate_url(60, method='GET',query_auth=True, force_http=True)
+			url = key.generate_url(3600, method='GET',query_auth=True, force_http=True)
 
 			signed_urls.append(url)
 		else:
 			pass
 
 	for url in signed_urls:
-		count = count +1;
-		response[count] = url
+		response.append(url)
 	return jsonify(response=response)
 
 
