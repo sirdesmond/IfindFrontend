@@ -7,6 +7,7 @@ from tasks.tasks import forgot_password
 from flask.ext.cors import cross_origin
 import boto
 from boto.s3 import connect_to_region
+import os
 
 blueprint = Blueprint(__name__, __name__)
 
@@ -84,7 +85,7 @@ class UserManager(CORSObject):
 
 
 @blueprint.route('/signs3/<bunid>',methods=['GET','OPTIONS'])
-@cross_origin(origins='*',headers=[])
+@cross_origin(origins='*',headers=['Authorization'])
 def sign_s3(bunid):
     response=[]
     access_key = os.environ['AWS_ACCESS_KEY_ID']

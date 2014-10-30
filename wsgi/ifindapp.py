@@ -9,6 +9,9 @@ app = Flask(__name__)
 app.config.from_object(config['default'])
 use_pretty_default_error_handlers(app)
 
+
+print app.url_map
+
 db = MongoEngine(app)
 import views
 views
