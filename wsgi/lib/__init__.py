@@ -179,6 +179,7 @@ def validate_json(validate_function, default=None):
             input_json = default()
         try:
             validate_function(input_json)
+            g.data = input_json
         except Exception, e:
             print 'BAD BOY!!!' + str(e)
             return make_error(str(e), 400)

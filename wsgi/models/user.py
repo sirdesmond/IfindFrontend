@@ -21,6 +21,10 @@ user_full_with_hash = Schema({
     'p_number': basestring,
     'geninfo': basestring
 })
+user_email = Schema({
+    'email': validate_email,
+    Optional("code"): basestring
+})
 
 user_full = Schema({
     'email': validate_email,
@@ -39,6 +43,8 @@ class Status(db.EmbeddedDocument):
     verified = db.BooleanField()
     vcode = db.StringField()
     vcode_exp = db.FloatField()
+    pswrd_reset_code = db.StringField()
+    pswrd_reset_actv = db.BooleanField(required=True, default=False)
 
 class Profile(db.EmbeddedDocument):
     bsid = db.StringField()
@@ -100,12 +106,20 @@ class User(db.DynamicDocument, UserMixin):
 
     @staticmethod
     def verify_auth_token(token):
+
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
             data = s.loads(token)
-        except:
+            print data
+        except Exception, e:
+            print "here" + str(e)
             return None
+
         return User.objects.get(id=data['id'])
+
+    def generate_reset_token(self, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'reset': self.email, "id":str(self.id)})
 
     def generate_confirmation_token(self, expiration=3600):
         s = Serializer(current_app.config['SECRET_KEY'], expiration)
@@ -128,10 +142,6 @@ class User(db.DynamicDocument, UserMixin):
         self.confirmed = True
         db.session.add(self)
         return True
-
-    def generate_reset_token(self, expiration=3600):
-        s = Serializer(current_app.config['SECRET_KEY'], expiration)
-        return s.dumps({'reset': self._id})
 
     def reset_password(self, token, new_password):
         s = Serializer(current_app.config['SECRET_KEY'])
@@ -179,6 +189,7 @@ class User(db.DynamicDocument, UserMixin):
                 'f_name': self.f_name,
                 'l_name': self.l_name,
                 'role': self.role,
+                'pswrd_reset_actv': self.v_status['pswrd_reset_actv']
             }
         if _type == 1:
             json_user = {
@@ -200,7 +211,6 @@ class User(db.DynamicDocument, UserMixin):
         if with_hash:
             # When generating the new user these field need to be availabe
             json_user['password_hash'] = self.password_hash
-            json_user['extrainfo'] = self.extr_info
             json_user['p_number'] = self.p_number
             del json_user['userid']
         try:
