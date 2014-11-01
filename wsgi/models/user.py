@@ -21,6 +21,11 @@ user_full_with_hash = Schema({
     'p_number': basestring,
     'country': basestring
 })
+user_email = Schema({
+    'email': validate_email,
+    Optional("code"): basestring
+
+})
 
 user_full = Schema({        
     'email': validate_email,
@@ -40,6 +45,8 @@ class Status(db.EmbeddedDocument):
     verified = db.BooleanField()
     vcode = db.StringField()
     vcode_exp = db.FloatField()
+    pswrd_reset_code = db.StringField()
+    pswrd_reset_actv = db.BooleanField(required=True, default=False)
 
 class Profile(db.EmbeddedDocument):
     bsid = db.StringField()
@@ -59,6 +66,7 @@ class User(db.DynamicDocument, UserMixin):
     profile = db.EmbeddedDocumentField(Profile)
     bun = db.StringField(unique=True, max_length=28)
     p_number = db.StringField(unique=True, max_length=10)
+    country = db.StringField()
 
 
     def json_to_doc(self, json_data=None):
@@ -72,7 +80,6 @@ class User(db.DynamicDocument, UserMixin):
                 self.l_name = json_data.get('l_name')
                 self.p_number = json_data.get('p_number')
                 self.country = json_data.get('country')
-
             except Exception, e:
                 raise e
 
@@ -100,13 +107,20 @@ class User(db.DynamicDocument, UserMixin):
 
     @staticmethod
     def verify_auth_token(token):
+
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
             data = s.loads(token)
-        except:
+            print data
+        except Exception, e:
+            print "here" + str(e)
             return None
+
         print User.objects.get(id=data['id'])
-        return User.objects.get(id=data['id'])
+
+    def generate_reset_token(self, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'reset': self.email, "id":str(self.id)})
 
     def generate_confirmation_token(self, expiration=3600):
         s = Serializer(current_app.config['SECRET_KEY'], expiration)
@@ -129,10 +143,6 @@ class User(db.DynamicDocument, UserMixin):
         self.confirmed = True
         db.session.add(self)
         return True
-
-    def generate_reset_token(self, expiration=3600):
-        s = Serializer(current_app.config['SECRET_KEY'], expiration)
-        return s.dumps({'reset': self._id})
 
     def reset_password(self, token, new_password):
         s = Serializer(current_app.config['SECRET_KEY'])
@@ -174,13 +184,16 @@ class User(db.DynamicDocument, UserMixin):
         print type(uid)
         json_user = {}
         if _type == 0:
+            actv = True if "v_status" in self else 0
             json_user = {
                 'userid': uid,
                 'email': self.email,
                 'f_name': self.f_name,
                 'l_name': self.l_name,
                 'role': self.role,
-                'country': self.country,
+                'pswrd_reset_actv': actv,
+                'country': self.country
+
             }
         if _type == 1:
             json_user = {
@@ -208,7 +221,7 @@ class User(db.DynamicDocument, UserMixin):
         try:
             json_user['verified'] = self.v_status.verified
         except Exception, e:
-            print str(e)       
+            print str(e)+"Error here"       
 
         return json.dumps(json_user)
 

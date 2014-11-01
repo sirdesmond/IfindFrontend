@@ -1,15 +1,17 @@
 from flask import (Blueprint, request, g, jsonify)
-from models.user import User
+from models.user import (User, user_email)
 from lib import (check, http_method_dispatcher,
-                 if_content_exists_then_is_json, validate_credentials,
-                 CORSObject, make_ok, make_error)
-from tasks.tasks import forgot_password
+                 if_content_exists_then_is_json, validate_credentials,CORSObject, make_ok, make_error, validate_json)
 from flask.ext.cors import cross_origin
+from tasks.tasks import (reset_password,recover_password)
 import boto
 from boto.s3 import connect_to_region
 import os
 
 blueprint = Blueprint(__name__, __name__)
+
+
+
 
 
 @blueprint.route('', methods=['POST', 'OPTIONS'])
@@ -25,7 +27,7 @@ class Auth(CORSObject):
         c_password = auth.password
         user = {}
         try:
-            user = User.objects.get(email=uname)  
+            user = User.objects.get(email=uname)
         except Exception, e:
             print str(e)
 
@@ -52,36 +54,6 @@ class Auth(CORSObject):
             'fbToken': g.current_user.generate_fb_token(payload=fb_payload)
         }
         return make_ok(tokens=response, user=g.current_user.to_json())
-
-
-
-
-@blueprint.route('/forgotpassword', methods=['POST', 'OPTIONS'])
-@cross_origin(origins='*', headers=['Authorization', 'Content-Type'])
-@check(if_content_exists_then_is_json)
-@http_method_dispatcher
-class UserManager(CORSObject):
-
-     def post(self):
-        response = {}
-        data = request.json['data']
-
-        input_json = {str(k): str(v) for k, v in data.iteritems()}
-        try:
-            user = User.objects.get(email=input_json['email'])  
-        except Exception, e:
-            print str(e)
-
-        if not user:
-            make_error('user not exist')
-
-        print "This is the user being processed :" + user
-
-        result = forgot_password.apply_async(user.email)
-        response['message'] = 'temporary password sent'
-
-        return make_ok()
-
 
 
 @blueprint.route('/signs3/<bunid>',methods=['GET','OPTIONS'])
@@ -111,3 +83,36 @@ def sign_s3(bunid):
     for url in signed_urls:
         response.append(url)
     return jsonify(response=response)
+    
+@blueprint.route('/<type>', methods=['POST', 'OPTIONS'])
+@cross_origin(origins='*', headers=['Authorization', 'Content-Type'])
+@check(if_content_exists_then_is_json)
+@http_method_dispatcher
+class AuthBranch(CORSObject):
+
+    @validate_json(user_email.validate)
+    def post(self, type):
+        print 'Type: ' + str(type)
+        if type == "0001":
+            print "We have a password recovery request "
+            user = User.objects.get(email=g.data["email"])
+            if not user:
+                make_error("No User Exist", 201)
+
+            result = recover_password.apply_async((g.data["email"],))
+            return make_ok()
+        elif type == "0002":
+            #Verify Code REMEBER!!!!!!
+
+            user = User.objects.get(email=g.data["email"])
+            print "We have a password change form request "
+            if user.v_status.pswrd_reset_code == g.data["code"]:
+                response = {
+                'ifcToken': user.generate_reset_token(
+                    expiration=60*60),
+                'ifcexp': 60*60,
+                }
+                print str(response)
+                return make_ok(tokens=response, user=user.to_json())
+
+        return make_error("Bad Request", 404)

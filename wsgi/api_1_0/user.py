@@ -2,10 +2,11 @@ from flask import Blueprint, request, g
 from celery import chain
 from models.user import (User, user_full, user_profile_partial, user_full_with_hash)
 from tasks.tasks import (register_user, send_confirm_email,
-                         confirm_user, add_contact)
+                         confirm_user, add_contact,reset_password)
 from flask.ext.cors import cross_origin
 import json
 import time
+from werkzeug.security import generate_password_hash
 from lib import (check, http_method_dispatcher,
                  if_content_exists_then_is_json, validate_credentials,
                  CORSObject, make_ok, make_ok_user, make_error, validate_json)
@@ -56,6 +57,45 @@ class RequestingUser(CORSObject):
     def put(self):
         pass
 
+    def delete(self):
+        pass
+
+@blueprint.route('/me/password', methods=['POST', 'PUT', 'DELETE', 'OPTIONS'])
+@cross_origin(origins='*', headers=['Authorization', 'Content-Type'])
+@check(if_content_exists_then_is_json)
+@http_method_dispatcher
+class RequestingUserPassword(CORSObject):
+
+    """docstring for UsersWithId"""
+    def verify_token(*args, **kwargs):
+        try:
+            token = str(request.headers).split(
+                'Authorization: Basic ')[1].split('\r')[0]
+            print token
+            user = User.verify_auth_token(token)
+
+            if not user:
+                added_headers = None
+                print 'bad token'
+                return make_error('Invalid token', 401,
+                                  additional_headers=added_headers)
+
+            g.current_user = user
+            return None
+
+        except Exception, e:
+            print str(e)
+            return make_error(str(e), 401)
+
+    @validate_credentials(verify_token)
+    def put(self):
+        print request.json
+
+        if "current_password" not in request.json:
+            if g.current_user.v_status["pswrd_reset_actv"]:
+                result = reset_password.apply_async((g.current_user.email, generate_password_hash(request.json["newPassword"])))
+
+        return make_ok()
     def delete(self):
         pass
 

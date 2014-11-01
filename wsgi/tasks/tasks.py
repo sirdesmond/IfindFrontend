@@ -22,11 +22,23 @@ def confirm_user(email):
 def add_contact(self, **kwargs):
     pass
 
-@celery.task(name='tasks.forgot_password')
-def forgot_password(self, **kwargs):
+
+
+@celery.task(name='tasks.recover_password')
+def recover_password(email):
+    print email
+
+    pass
+
+@celery.task(name='tasks.reset_password')
+def reset_password(email, password):
+    print email
+
     pass
 
 def test():
     from celery import chain
-    user_mock=dict(password='mynameis', u_name='Melvin', email='dannernaytion@gmail.com', f_name='Melvin', l_name='Harris', bun='devuser0002')
-    chain(register_users.s(str(user_mock)), send_confirm_email.s()).apply_async()
+    user_mock = dict(password='mynameis', u_name='Melvin',
+                     email='dannernaytion@gmail.com', f_name='Melvin', l_name='Harris', bun='devuser0002')
+    chain(register_users.s(str(user_mock)),
+          send_confirm_email.s()).apply_async()
