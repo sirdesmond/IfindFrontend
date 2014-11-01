@@ -19,7 +19,7 @@ user_full_with_hash = Schema({
     'password': basestring,
     'role': basestring,
     'p_number': basestring,
-    'geninfo': basestring
+    'country': basestring
 })
 user_email = Schema({
     'email': validate_email,
@@ -63,6 +63,7 @@ class User(db.DynamicDocument, UserMixin):
     profile = db.EmbeddedDocumentField(Profile)
     bun = db.StringField(unique=True, max_length=28)
     p_number = db.StringField(unique=True, max_length=10)
+    country = db.StringField()
 
 
     def json_to_doc(self, json_data=None):
@@ -75,9 +76,7 @@ class User(db.DynamicDocument, UserMixin):
                 self.f_name = json_data.get('f_name')
                 self.l_name = json_data.get('l_name')
                 self.p_number = json_data.get('p_number')
-
-                j = {str(k): str(v) for k, v in eval(json_data.get('geninfo')).iteritems()}
-                self.extr_info = j
+                self.country = json_data.get('country');
 
             except Exception, e:
                 raise e
@@ -183,13 +182,15 @@ class User(db.DynamicDocument, UserMixin):
         print type(uid)
         json_user = {}
         if _type == 0:
+            actv = True if "v_status" in self else 0
             json_user = {
                 'userid': uid,
                 'email': self.email,
                 'f_name': self.f_name,
                 'l_name': self.l_name,
                 'role': self.role,
-                'pswrd_reset_actv': self.v_status['pswrd_reset_actv']
+                'pswrd_reset_actv': actv,
+                'country': self.country
             }
         if _type == 1:
             json_user = {
@@ -216,7 +217,7 @@ class User(db.DynamicDocument, UserMixin):
         try:
             json_user['verified'] = self.v_status.verified
         except Exception, e:
-            print str(e)       
+            print str(e)+"Error here"       
 
         return json.dumps(json_user)
 
