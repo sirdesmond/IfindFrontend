@@ -1,3 +1,5 @@
+
+import sys
 import os
 from ifindapp import create_app,db
 from flask import redirect

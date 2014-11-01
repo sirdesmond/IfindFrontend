@@ -17,7 +17,7 @@ class Business(db.DynamicDocument, UserMixin):
     email = db.StringField(required=True, unique=True)
     f_name = db.StringField(required=True, max_length=64)
     l_name = db.StringField(required=True, max_length=64)
-    role = db.StringField(required=True, max_length=64)
+    role = db.StringField(required=True, max_length=64,default='gen')
     password_hash = db.StringField(required=True, max_length=128)
     confirmed = db.BooleanField(default=False)
     username = db.StringField(required=True, max_length=64)

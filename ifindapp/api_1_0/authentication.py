@@ -1,3 +1,4 @@
+
 from flask import g, jsonify, request, session, Response
 from flask.ext.httpauth import HTTPBasicAuth
 from flask.ext.login import login_user, logout_user, login_required, \
@@ -17,6 +18,10 @@ from bson.objectid import ObjectId
 import time, os, json, base64, hmac, urllib
 from hashlib import sha1
 import datetime
+import boto
+from boto.s3.connection import OrdinaryCallingFormat
+from boto.s3 import connect_to_region
+from boto.s3.connection import Location
 
 auth = HTTPBasicAuth()
 
@@ -33,7 +38,7 @@ def verify_password(email_or_token, password):
 		print 'Real token '+ token
 		user = User.verify_auth_token(token)
 		if user is not None:
-			g.current_user = user
+			g.current_user = user 
 			g.token_used = True
 			return g.current_user is not None
 
@@ -138,51 +143,72 @@ def search(searchterm, category):
 			
 	return jsonify(response=response)
 
-@api.route('/signs3',methods=['GET','POST','OPTIONS'])
-@cross_origin(origins='*',headers=['Content-Type'])
-def sign_s3():
-	response={}
-	AWS_ACCESS_KEY = 'AKIAJ6TLOGEVEZX77OUA'
-	AWS_SECRET_KEY = '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'
-	S3_BUCKET = 'ifind'
 
-	if request.method=='POST':
-		print 'I am post'
-		data = request.json
-		if 's3_object_name' in data:
-			object_name = data['s3_object_name']
-		if 's3_object_type' in data:
-			mime_type = data['s3_object_type']
-	else:
-		print 'I am something else'
-		object_name = request.args.get('s3_object_name')
-		mime_type = request.args.get('s3_object_type')
+@api.route('/signs3/<bunid>',methods=['GET','OPTIONS'])
+@cross_origin(origins='*',headers=[])
+def sign_s3(bunid):
+	response=[]
+	access_key = os.environ['AWS_ACCESS_KEY_ID']
+	secret_key = os.environ['AWS_SECRET_ACCESS_KEY']
+	bucket = 'ifindcard'
+	signed_urls = []
+	count = 0
+	conn = boto.connect_s3(aws_access_key_id = access_key,aws_secret_access_key = secret_key)
 
-	expires = long(time.time()+ 60 * 3)
-	expiration= datetime.datetime.utcfromtimestamp(expires).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-	amz_headers = "x-amz-acl:public-read"
+	for bucket in conn.get_all_buckets():
+		print "{name}\t{created}".format(name = bucket.name,created = bucket.creation_date)
+
+	for key in conn.get_bucket('ifindcard'):
+		if str(bunid) in str(key):
+			key.set_canned_acl('private')
+			print "{name}\t{size}\t{modified}".format(name=key.name,size=key.size,modified=key.last_modified)
+			url = key.generate_url(3600, method='GET',query_auth=True, force_http=True)
+
+			signed_urls.append(url)
+		else:
+			pass
+
+	for url in signed_urls:
+		response.append(url)
+	return jsonify(response=response)
 
 
-	#dummy = 'multipart/form-data; boundary=+++++'
-	#put_request = "POST\n\n%s\n%d\n/%s/%s" % (dummy,expires,S3_BUCKET, object_name)
+# @api.route('/signs3',methods=['GET','OPTIONS'])
+# @cross_origin(origins='*',headers=[])
+# def sign_s3():
+# 	response={}
+# 	AWS_ACCESS_KEY = 'AKIAJ6TLOGEVEZX77OUA'
+# 	AWS_SECRET_KEY = '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'
+# 	S3_BUCKET = 'ifindcard'
+# 	signed_urls = []
+# 	count = 0
 
-    
-	input = open("policy.txt", "rb")
-	policy = input.read()
-    
-	policyBase64 = base64.b64encode(policy).encode("UTF-8")
+# 	conn = boto.connect_s3(aws_access_key_id = AWS_ACCESS_KEY,aws_secret_access_key = AWS_SECRET_KEY)
 
-	signature = base64.encodestring(hmac.new(AWS_SECRET_KEY, policyBase64, sha1).digest())
-	signature = urllib.quote_plus(signature.strip())
-	url = 'http://%s.s3.amazonaws.com/%s' % (S3_BUCKET,object_name)
+# 	expires = long(time.time()+ 20)
+# 	expiration= datetime.datetime.utcfromtimestamp(expires).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+# 	t = datetime.datetime.utcnow()
+# 	amzdate = t.strftime('%Y%m%dT%H%M%SZ')
 
-	return json.dumps({
-	    'signed_request': '%s?AWSAccessKeyId=%s&Expires=%d&Signature=%s' % (url, AWS_ACCESS_KEY, expires, signature),
-	     'bucket': S3_BUCKET,
-	     'policy':policyBase64,
-	     'awsKey':AWS_ACCESS_KEY,
-	     'signature':signature,
-	  })
+# 	amz_headers = "x-amz-acl:private"
+
+# 	for key in conn.get_bucket('ifindcard'):
+# 		get_request = "GET\n\n\n%d\n%s\n/%s/%s" % (expires, amz_headers, S3_BUCKET, key.name)
+# 		signature = base64.encodestring(hmac.new(AWS_SECRET_KEY, get_request, sha1).digest())
+# 		signature = urllib.quote_plus(signature.strip())	
+# 		url = 'https://%s.s3.amazonaws.com/%s?' % (S3_BUCKET,key.name)
+
+# 		payload = {'AWSAccessKeyId':AWS_ACCESS_KEY,'Expires':expires,'Signature':signature}
+
+# 		signed = url + urllib.urlencode(payload)
+
+# 		print signed
+# 		signed_urls.append(signed)
+
+# 	for url in signed_urls:
+# 		count = count +1;
+# 		response[count] = url
+# 	return jsonify(response=response)
 
 
 @api.route('/activate', methods=['POST','OPTIONS'])

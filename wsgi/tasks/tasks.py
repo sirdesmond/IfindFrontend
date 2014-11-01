@@ -23,6 +23,7 @@ def add_contact(self, **kwargs):
     pass
 
 
+
 @celery.task(name='tasks.recover_password')
 def recover_password(email):
     print email
@@ -34,7 +35,6 @@ def reset_password(email, password):
     print email
 
     pass
-
 
 def test():
     from celery import chain

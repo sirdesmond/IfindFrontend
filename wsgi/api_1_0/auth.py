@@ -1,10 +1,11 @@
 from flask import (Blueprint, request, g, jsonify)
 from models.user import (User, user_email)
 from lib import (check, http_method_dispatcher,
-                 if_content_exists_then_is_json, validate_credentials,
-                 CORSObject, make_ok, make_error, validate_json)
+                 if_content_exists_then_is_json, validate_credentials,CORSObject, make_ok, make_error, validate_json)
 from flask.ext.cors import cross_origin
 from tasks.tasks import (reset_password,recover_password)
+import boto
+from boto.s3 import connect_to_region
 blueprint = Blueprint(__name__, __name__)
 
 
@@ -82,3 +83,33 @@ class Auth(CORSObject):
             'fbToken': g.current_user.generate_fb_token(payload=fb_payload)
         }
         return make_ok(tokens=response, user=g.current_user.to_json())
+
+
+@blueprint.route('/signs3/<bunid>',methods=['GET','OPTIONS'])
+@cross_origin(origins='*',headers=[])
+def sign_s3(bunid):
+    response=[]
+    access_key = os.environ['AWS_ACCESS_KEY_ID']
+    secret_key = os.environ['AWS_SECRET_ACCESS_KEY']
+    bucket = 'ifindcard'
+    signed_urls = []
+    count = 0
+    conn = boto.connect_s3(aws_access_key_id = access_key,aws_secret_access_key = secret_key)
+
+    for bucket in conn.get_all_buckets():
+        print "{name}\t{created}".format(name = bucket.name,created = bucket.creation_date)
+
+    for key in conn.get_bucket('ifindcard'):
+        if str(bunid) in str(key):
+            key.set_canned_acl('private')
+            print "{name}\t{size}\t{modified}".format(name=key.name,size=key.size,modified=key.last_modified)
+            url = key.generate_url(3600, method='GET',query_auth=True, force_http=True)
+
+            signed_urls.append(url)
+        else:
+            pass
+
+    for url in signed_urls:
+        response.append(url)
+    return jsonify(response=response)
+    

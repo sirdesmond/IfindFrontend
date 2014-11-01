@@ -24,14 +24,16 @@ user_full_with_hash = Schema({
 user_email = Schema({
     'email': validate_email,
     Optional("code"): basestring
+
 })
 
-user_full = Schema({
+user_full = Schema({        
     'email': validate_email,
     'u_name': basestring,
     'f_name': basestring,
     'l_name': basestring,
     'role': basestring,
+    'country':basestring,
     '_type': int
 })
 
@@ -59,6 +61,7 @@ class User(db.DynamicDocument, UserMixin):
     role = db.StringField(required=True, max_length=64)
     password_hash = db.StringField(required=True, max_length=128)
     username = db.StringField(required=True, max_length=64)
+    country = db.StringField(required=True, max_length=64)
     v_status = db.EmbeddedDocumentField(Status)
     profile = db.EmbeddedDocumentField(Profile)
     bun = db.StringField(unique=True, max_length=28)
@@ -76,8 +79,7 @@ class User(db.DynamicDocument, UserMixin):
                 self.f_name = json_data.get('f_name')
                 self.l_name = json_data.get('l_name')
                 self.p_number = json_data.get('p_number')
-                self.country = json_data.get('country');
-
+                self.country = json_data.get('country')
             except Exception, e:
                 raise e
 
@@ -114,7 +116,7 @@ class User(db.DynamicDocument, UserMixin):
             print "here" + str(e)
             return None
 
-        return User.objects.get(id=data['id'])
+        print User.objects.get(id=data['id'])
 
     def generate_reset_token(self, expiration=3600):
         s = Serializer(current_app.config['SECRET_KEY'], expiration)
@@ -191,6 +193,7 @@ class User(db.DynamicDocument, UserMixin):
                 'role': self.role,
                 'pswrd_reset_actv': actv,
                 'country': self.country
+
             }
         if _type == 1:
             json_user = {
@@ -199,6 +202,7 @@ class User(db.DynamicDocument, UserMixin):
                 'f_name': self.f_name,
                 'l_name': self.l_name,
                 'role': self.role,
+                'country': self.country,
                 'bun': self.bun,
                 'p_number':self.p_number,
                 'profile': {

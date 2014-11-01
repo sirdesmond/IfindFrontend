@@ -1,0 +1,13 @@
+{ "expiration": "2015-12-01T12:00:00.000Z",
+
+"conditions": [
+
+        {"acl": "public-read" },
+
+        {"bucket": "ifind" },
+
+        ["starts-with", "$key", "00002"],
+
+        ]
+
+}
