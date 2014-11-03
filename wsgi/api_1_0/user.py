@@ -189,6 +189,7 @@ class UsersManager(CORSObject):
         input_json = {str(k): str(v) for k, v in data.iteritems()}
 
         if str(controller) == 'activate':
+            print input_json.get("email")
             user = User.objects.get(email=input_json.get("email"))
             v_status = user["v_status"]
             '''
