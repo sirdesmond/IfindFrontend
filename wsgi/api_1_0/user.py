@@ -122,6 +122,7 @@ class RequestingUserContacts(CORSObject):
             return None
 
         except Exception, e:
+            print str(e)
             return make_error(str(e), 401)
 
     @validate_json(user_full_with_hash.validate)
