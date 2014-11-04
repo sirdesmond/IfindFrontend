@@ -105,7 +105,7 @@ class AuthBranch(CORSObject):
             #Verify Code REMEBER!!!!!!
 
             user = User.objects.get(email=g.data["email"])
-            print "We have a password change form request "
+            print "We have a password change form request "+user.v_status.pswrd_reset_code+" "+g.data["code"]
             if user.v_status.pswrd_reset_code == g.data["code"]:
                 response = {
                 'ifcToken': user.generate_reset_token(

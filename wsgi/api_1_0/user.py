@@ -73,7 +73,7 @@ class RequestingUserPassword(CORSObject):
                 'Authorization: Basic ')[1].split('\r')[0]
             print token
             user = User.verify_auth_token(token)
-
+            print "User created from token: "+str(user)
             if not user:
                 added_headers = None
                 print 'bad token'

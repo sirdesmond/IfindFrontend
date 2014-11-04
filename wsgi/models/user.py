@@ -111,12 +111,11 @@ class User(db.DynamicDocument, UserMixin):
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
             data = s.loads(token)
-            print data
         except Exception, e:
             print "here" + str(e)
             return None
 
-        print User.objects.get(id=data['id'])
+        return User.objects.get(id=data['id'])
 
     def generate_reset_token(self, expiration=3600):
         s = Serializer(current_app.config['SECRET_KEY'], expiration)
